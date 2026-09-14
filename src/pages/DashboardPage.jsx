@@ -36,6 +36,7 @@ export function DashboardPage() {
   const setQueryError = setPageError;
   const setProfileError = setPageError;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = useState(false);
   const [modal, setModal] = useState(null);
   const [modalInput, setModalInput] = useState('');
   const [modalDatasetId, setModalDatasetId] = useState('');
@@ -310,6 +311,8 @@ export function DashboardPage() {
       <div className="flex h-screen overflow-hidden pt-14">
         <Sidebar
           open={sidebarOpen}
+          pinned={sidebarPinned}
+          onPin={setSidebarPinned}
           datasets={datasets}
           datasetProfiles={datasetProfiles}
           datasetsLoading={datasetsLoading}
@@ -325,7 +328,7 @@ export function DashboardPage() {
           onDeleteDataset={(dataset) => setModal({ type: 'delete-dataset', title: `Delete ${dataset.original_file_name}?`, dataset })}
         />
         {sidebarOpen && <button className="fixed inset-x-0 bottom-0 top-14 z-10 border-0 bg-black/25 lg:hidden" aria-label="Close sidebar" onClick={() => setSidebarOpen(false)} />}
-        <main className={`h-full min-h-0 min-w-0 w-full lg:ml-64 lg:w-[calc(100%-16rem)] ${conversationId && activeConversation ? 'overflow-hidden p-0' : 'overflow-x-hidden overflow-y-auto overscroll-contain p-4 pb-10 lg:p-8 lg:pb-12'}`}>
+        <main className={`h-full min-h-0 min-w-0 flex-1 ${conversationId && activeConversation ? 'overflow-hidden p-0' : 'overflow-x-hidden overflow-y-auto overscroll-contain p-4 pb-10 lg:p-8 lg:pb-12'}`}>
           {!selectedDatasetId ? (
             <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col items-start justify-center"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Your workspace</p><h1 className="mb-3 text-4xl font-semibold tracking-[-0.04em] text-[#1D1D1F]">Start with a dataset.</h1><p className="mb-7 max-w-lg text-[15px] leading-7 text-[#6E6E73]">Upload a CSV, Excel, JSON, or Parquet file, then create an analysis from the sidebar.</p><button className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={() => emptyUploadRef.current?.click()} disabled={uploading}>{uploading ? 'Uploading…' : 'Upload Dataset'}</button></section>
           ) : conversationId && activeConversation ? (

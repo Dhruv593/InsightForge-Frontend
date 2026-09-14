@@ -42,8 +42,8 @@ export function deriveKpis(charts = []) {
 
     usedTitles.add(title);
     kpis.push({
-      title,
-      value: singleTotal ? formatMetric(strongest.value, `${measure} ${chart.title}`) : formatCategory(strongest.label),
+      title: singleTotal ? title : `${measure} · ${formatCategory(strongest.label)}`,
+      value: formatMetric(strongest.value, `${measure} ${chart.title}`),
       detail: singleTotal ? formatCategory(strongest.label) : formatMetric(strongest.value, `${measure} ${chart.title}`),
       exactValue: formatExactMetric(strongest.value, `${measure} ${chart.title}`),
     });

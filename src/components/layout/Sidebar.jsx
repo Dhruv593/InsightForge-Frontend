@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { DockPanel } from './DockPanel';
 
-export function Sidebar({ open, datasets, datasetProfiles, datasetsLoading, selectedDatasetId, conversations, conversationsLoading, selectedConversationId, uploading, onUpload, onSelectDataset, onSelectConversation, onNewAnalysis, onDeleteDataset }) {
+export function Sidebar({ open, pinned, onPin, datasets, datasetProfiles, datasetsLoading, selectedDatasetId, conversations, conversationsLoading, selectedConversationId, uploading, onUpload, onSelectDataset, onSelectConversation, onNewAnalysis, onDeleteDataset }) {
   const inputRef = useRef(null);
   const { user } = useAuth();
   const chooseFile = () => inputRef.current?.click();
@@ -11,8 +12,7 @@ export function Sidebar({ open, datasets, datasetProfiles, datasetsLoading, sele
     event.target.value = '';
   };
 
-  return (
-    <aside className={`fixed bottom-0 left-0 top-14 z-20 flex w-64 flex-col border-r border-[#E1E1E5] bg-[#F7F7F9] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+  const content = <>
       <div className="px-3 pt-4">
         <button className="flex min-h-10 w-full items-center gap-2 rounded-lg border border-[#DADAE0] bg-white px-3 text-left text-sm font-medium text-[#1D1D1F] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition hover:border-[#C8C8CE] hover:bg-[#FBFBFC]" type="button" onClick={onNewAnalysis}>
           <span className="text-lg font-light leading-none text-brand-600">+</span>New Analysis
@@ -29,8 +29,8 @@ export function Sidebar({ open, datasets, datasetProfiles, datasetsLoading, sele
         </SidebarSection>
       </nav>
       <div className="border-t border-[#E1E1E5] px-4 py-3.5"><div className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#E5E5EA] text-xs font-semibold text-[#515154]">{initials(user?.name)}</span><div className="min-w-0"><p className="m-0 truncate text-[13px] font-medium text-[#1D1D1F]">{user?.name || 'Account'}</p><p className="m-0 truncate text-[11px] text-[#86868B]">{user?.email}</p></div></div></div>
-    </aside>
-  );
+    </>;
+  return <><DockPanel title="Workspace" pinned={pinned} onPin={onPin}>{content}</DockPanel>{open && <aside className="fixed bottom-0 left-0 top-14 z-20 flex w-64 flex-col border-r border-[#E1E1E5] bg-[#FAFAFB] lg:hidden">{content}</aside>}</>;
 }
 
 function SidebarSection({ title, className = '', children }) { return <section className={`min-w-0 ${className}`}><h2 className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#86868B]">{title}</h2>{children}</section>; }

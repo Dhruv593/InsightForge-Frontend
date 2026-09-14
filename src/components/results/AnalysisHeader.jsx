@@ -1,17 +1,23 @@
-import { useState } from 'react';
-import { downloadReportPdf } from '../../utils/reportPdf';
+import { useEffect, useState } from 'react';
+import { prepareReportPdf } from '../../utils/reportPdf';
 import { useToast } from '../../context/ToastContext';
+import { ReportPdfPreview } from './ReportPdfPreview';
 
 export function AnalysisHeader({ conversation, dataset, profileComplete, result, onRename, onDelete, onOpenQuestions }) {
   const [downloading, setDownloading] = useState(false);
+  const [preview, setPreview] = useState(null);
   const { error, success } = useToast();
 
-  async function download() {
+  useEffect(() => () => {
+    if (preview?.url) globalThis.URL.revokeObjectURL(preview.url);
+  }, [preview]);
+
+  async function openPreview() {
     if (!result?.report) return;
     setDownloading(true);
     try {
-      await downloadReportPdf(result.report, result.charts || []);
-      success('Your PDF is ready. Download started.');
+      const prepared = await prepareReportPdf(result.report, result.charts || []);
+      setPreview({ ...prepared, url: globalThis.URL.createObjectURL(prepared.blob) });
     } catch {
       error('PDF export failed. Please try again.');
     } finally {
@@ -31,12 +37,13 @@ export function AnalysisHeader({ conversation, dataset, profileComplete, result,
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
-          <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] xl:hidden" type="button" onClick={onOpenQuestions}>Questions</button>
-          {result?.report && <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] disabled:opacity-50" type="button" onClick={download} disabled={downloading}>{downloading ? 'Preparing PDF…' : 'Download PDF'}</button>}
+          <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] lg:hidden" type="button" onClick={onOpenQuestions}>Questions</button>
+          {result?.report && <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] disabled:opacity-50" type="button" onClick={openPreview} disabled={downloading}>{downloading ? 'Preparing PDF…' : 'Download PDF'}</button>}
           <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]" type="button" onClick={onRename}>Rename</button>
           <button className="rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#86868B] hover:bg-red-50 hover:text-red-600" type="button" onClick={onDelete}>Delete</button>
         </div>
       </div>
+      {preview && <ReportPdfPreview url={preview.url} filename={preview.filename} onClose={() => setPreview(null)} onDownloaded={() => success('PDF download started.')} />}
     </header>
   );
 }

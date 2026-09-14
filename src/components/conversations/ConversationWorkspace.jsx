@@ -59,7 +59,7 @@ export function ConversationWorkspace({ conversation, dataset, messages, runs, r
   }
 
   return (
-    <section className="flex h-[calc(100vh-3.5rem)] min-h-130 overflow-hidden bg-[#F5F5F7]">
+    <section className="flex h-full min-h-0 overflow-hidden bg-[#F5F5F7]">
       <div className="grid min-w-0 flex-1 grid-rows-[auto_1fr_auto] overflow-hidden">
         <AnalysisHeader conversation={conversation} dataset={dataset} profileComplete={profileComplete} result={selectedResult} onRename={onRename} onDelete={onDelete} onOpenQuestions={() => setQuestionsOpen(true)} />
         <div className="min-h-0 overflow-y-auto" ref={resultScrollRef}>

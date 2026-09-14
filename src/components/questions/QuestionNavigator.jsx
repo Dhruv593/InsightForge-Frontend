@@ -1,9 +1,13 @@
+import { useState } from 'react';
+import { DockPanel } from '../layout/DockPanel';
+
 export function QuestionNavigator({ questions, selectedRunId, open, onClose, onSelect }) {
+  const [pinned, setPinned] = useState(false);
   const content = <NavigatorContent questions={questions} selectedRunId={selectedRunId} onSelect={onSelect} />;
   return (
     <>
-      <aside className="hidden min-h-0 w-62 shrink-0 flex-col border-l border-[#E5E5EA] bg-[#FAFAFB] xl:flex">{content}</aside>
-      {open && <div className="fixed inset-0 z-40 xl:hidden"><button className="absolute inset-0 border-0 bg-black/20" type="button" aria-label="Close questions" onClick={onClose} /><aside className="absolute bottom-0 right-0 top-0 flex w-[min(20rem,88vw)] flex-col border-l border-[#E5E5EA] bg-[#FAFAFB] shadow-[-8px_0_30px_rgba(0,0,0,0.08)]"><button className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-lg border-0 bg-transparent text-lg text-[#6E6E73] hover:bg-[#ECECEF]" type="button" onClick={onClose} aria-label="Close questions">×</button>{content}</aside></div>}
+      <DockPanel side="right" title="Questions" pinned={pinned} onPin={setPinned}>{content}</DockPanel>
+      {open && <div className="fixed inset-0 z-40 lg:hidden"><button className="absolute inset-0 border-0 bg-black/20" type="button" aria-label="Close questions" onClick={onClose} /><aside className="absolute bottom-0 right-0 top-0 flex w-[min(20rem,88vw)] flex-col border-l border-[#E5E5EA] bg-[#FAFAFB] shadow-[-8px_0_30px_rgba(0,0,0,0.08)]"><button className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-lg border-0 bg-transparent text-lg text-[#6E6E73] hover:bg-[#ECECEF]" type="button" onClick={onClose} aria-label="Close questions">×</button>{content}</aside></div>}
     </>
   );
 }
