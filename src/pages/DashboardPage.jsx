@@ -11,6 +11,7 @@ import { getApiError } from '../services/api';
 import { conversationService } from '../services/conversationService';
 import { datasetService } from '../services/datasetService';
 import { profileService } from '../services/profileService';
+import { usePersistentState } from '../hooks/usePersistentState';
 
 export function DashboardPage() {
   const { datasetId: routeDatasetId, conversationId } = useParams();
@@ -32,11 +33,12 @@ export function DashboardPage() {
   const [uploading, setUploading] = useState(false);
   const [querySubmitting, setQuerySubmitting] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(null);
+  const [activeQueue, setActiveQueue] = useState([]);
   const { error: setPageError, success } = useToast();
   const setQueryError = setPageError;
   const setProfileError = setPageError;
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarPinned, setSidebarPinned] = useState(false);
+  const [sidebarPinned, setSidebarPinned] = usePersistentState('insightforge.sidebar.open', false);
   const [modal, setModal] = useState(null);
   const [modalInput, setModalInput] = useState('');
   const [modalDatasetId, setModalDatasetId] = useState('');
@@ -87,6 +89,22 @@ export function DashboardPage() {
   }, [setPageError]);
 
   useEffect(() => { loadDatasets(); loadConversations(); }, [loadDatasets, loadConversations]);
+
+  useEffect(() => {
+    let current = true;
+    let timer;
+    const loadQueue = async () => {
+      try {
+        const response = await analysisService.activeQueue();
+        if (current) setActiveQueue(response.items ?? []);
+      } catch {
+        // The conversation-specific polling remains available if this summary request fails.
+      }
+      if (current) timer = window.setTimeout(loadQueue, 2200);
+    };
+    loadQueue();
+    return () => { current = false; window.clearTimeout(timer); };
+  }, []);
 
   useEffect(() => {
     let current = true;
@@ -153,6 +171,48 @@ export function DashboardPage() {
     return () => { current = false; };
   }, [conversationId, setPageError]);
 
+  const activeRunSignature = runs.filter((run) => ['pending', 'running'].includes(run.status)).map((run) => `${run.id}:${run.status}`).join('|');
+  useEffect(() => {
+    if (!conversationId || !activeRunSignature) {
+      setAnalysisProgress(null);
+      return undefined;
+    }
+    let current = true;
+    let timer;
+    const previouslyActiveIds = new Set(activeRunSignature.split('|').map((item) => item.split(':')[0]));
+    const refreshActiveRuns = async () => {
+      try {
+        const runResponse = await analysisService.listForConversation(conversationId);
+        if (!current) return;
+        const loadedRuns = runResponse.items ?? [];
+        const active = loadedRuns.find((run) => ['pending', 'running'].includes(run.status));
+        const completedSinceLastPoll = loadedRuns.some((next) => previouslyActiveIds.has(next.id) && !['pending', 'running'].includes(next.status));
+        if (!active || completedSinceLastPoll) {
+          const [messageResponse, results] = await Promise.all([
+            conversationService.messages(conversationId),
+            loadResults(loadedRuns),
+          ]);
+          if (!current) return;
+          setMessages(messageResponse.items ?? []);
+          setResultsByRun(results);
+        }
+        setRuns(loadedRuns);
+        if (active?.status === 'pending') {
+          const queued = await analysisService.queueStatus(active.id);
+          if (current) setAnalysisProgress({ label: 'Waiting to begin…', detail: queued.queue_position ? `Your analysis is number ${queued.queue_position} in the queue.` : 'Your analysis is safely queued.' });
+        } else if (active) {
+          const agents = await analysisService.listAgentRuns(active.id);
+          if (current) setAnalysisProgress(progressFromAgentRuns(agents.items ?? []));
+        } else if (!active) setAnalysisProgress(null);
+      } catch {
+        // A transient poll failure must not discard a queued server-side analysis.
+      }
+      if (current) timer = window.setTimeout(refreshActiveRuns, 1400);
+    };
+    timer = window.setTimeout(refreshActiveRuns, 350);
+    return () => { current = false; window.clearTimeout(timer); };
+  }, [conversationId, activeRunSignature]);
+
   async function uploadDataset(file, keepAnalysisModal = false) {
     setUploading(true);
     setPageError('');
@@ -191,69 +251,53 @@ export function DashboardPage() {
     }
   }
 
-  async function submitQuery(payload) {
+  async function submitQuery(payload, force = false) {
     setQuerySubmitting(true);
-    setAnalysisProgress({ label: 'Sending your question…', detail: 'Creating a secure analysis run.' });
     setQueryError('');
-    let createdRunId = null;
-    let progressTimer = null;
-    let stopProgressPolling = false;
     try {
-      const result = await analysisService.createQuery(conversationId, payload);
-      createdRunId = result.analysis_run.id;
+      const result = await analysisService.createQuery(conversationId, { ...payload, force });
       setMessages((current) => [...current, result.message]);
       setRuns((current) => [result.analysis_run, ...current]);
-      setAnalysisProgress({ label: 'Preparing your analysis…', detail: `Connecting to ${providerLabel(payload.llm_provider)}.` });
-
-      const pollProgress = async () => {
-        try {
-          const response = await analysisService.listAgentRuns(createdRunId);
-          if (!stopProgressPolling) setAnalysisProgress(progressFromAgentRuns(response.items ?? []));
-        } catch {
-          // Execution remains authoritative; a transient progress-poll failure is non-fatal.
-        }
-        if (!stopProgressPolling) progressTimer = window.setTimeout(pollProgress, 700);
-      };
-      progressTimer = window.setTimeout(pollProgress, 250);
-      await analysisService.execute(createdRunId);
-      stopProgressPolling = true;
-      window.clearTimeout(progressTimer);
-      setAnalysisProgress({ label: 'Saving your analysis…', detail: 'Finalizing the grounded response and analysis history.' });
-      const [messageResponse, runResponse, refreshed] = await Promise.all([
-        conversationService.messages(conversationId),
-        analysisService.listForConversation(conversationId),
-        conversationService.list(),
-      ]);
-      const loadedRuns = runResponse.items ?? [];
-      setMessages(messageResponse.items ?? []);
-      setRuns(loadedRuns);
-      setResultsByRun(await loadResults(loadedRuns));
-      setConversations(refreshed.items ?? []);
-      success('Your analysis is ready.');
+      setActiveQueue((current) => current.some((run) => run.id === result.analysis_run.id) ? current : [...current, result.analysis_run]);
+      setAnalysisProgress({ label: 'Waiting to begin…', detail: 'Your question is safely queued.' });
+      success('Analysis added to the queue.');
       return true;
     } catch (error) {
-      if (createdRunId) {
-        try {
-          const [messageResponse, runResponse] = await Promise.all([
-            conversationService.messages(conversationId),
-            analysisService.listForConversation(conversationId),
-          ]);
-          setMessages(messageResponse.items ?? []);
-          setRuns(runResponse.items ?? []);
-        } catch {
-          // Keep the pending user message already shown when refresh also fails.
-        }
-        const parsed = getApiError(error, 'Please try again.');
-        setQueryError(`Analysis failed. ${parsed.message}`);
+      const parsed = getApiError(error, 'Could not submit the query.');
+      if (parsed.code === 'DUPLICATE_ANALYSIS_RUN' && parsed.details?.analysis_run_id) {
+        setModal({ type: 'duplicate-query', title: 'Similar analysis found', runId: parsed.details.analysis_run_id, payload });
       } else {
-        setQueryError(getApiError(error, 'Could not submit the query.').message);
+        setQueryError(parsed.message);
       }
       return false;
     } finally {
-      stopProgressPolling = true;
-      window.clearTimeout(progressTimer);
-      setAnalysisProgress(null);
       setQuerySubmitting(false);
+    }
+  }
+
+  async function retryAnalysis(runId, provider) {
+    setQuerySubmitting(true);
+    try {
+      const result = await analysisService.retry(runId, provider);
+      setMessages((current) => [...current, result.message]);
+      setRuns((current) => [result.analysis_run, ...current]);
+      setActiveQueue((current) => [...current, result.analysis_run]);
+      success('Analysis added to the queue again.');
+    } catch (error) {
+      setQueryError(getApiError(error, 'Could not retry this analysis.').message);
+    } finally {
+      setQuerySubmitting(false);
+    }
+  }
+
+  async function cancelAnalysis(runId) {
+    try {
+      const cancelled = await analysisService.cancel(runId);
+      setRuns((current) => current.map((run) => run.id === cancelled.id ? cancelled : run));
+      setActiveQueue((current) => current.filter((run) => run.id !== cancelled.id));
+      success('Analysis cancelled.');
+    } catch (error) {
+      setQueryError(getApiError(error, 'Could not cancel this analysis.').message);
     }
   }
 
@@ -295,6 +339,9 @@ export function DashboardPage() {
         setDatasetProfiles((current) => Object.fromEntries(Object.entries(current).filter(([id]) => id !== modal.dataset.id)));
         setConversations((current) => current.filter((item) => item.dataset_id !== modal.dataset.id));
         navigate('/dashboard');
+      } else if (modal.type === 'duplicate-query') {
+        const created = await submitQuery(modal.payload, true);
+        if (!created) return;
       }
       setModal(null);
     } catch (error) {
@@ -307,7 +354,7 @@ export function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F5F7]">
-      <AppHeader onToggleSidebar={() => setSidebarOpen((value) => !value)} />
+      <AppHeader onToggleSidebar={() => setSidebarOpen((value) => !value)} activeRuns={activeQueue} onSelectRun={(run) => navigate(`/dashboard/conversations/${run.conversation_id}?run=${run.id}`)} onCancelRun={(run) => cancelAnalysis(run.id)} />
       <div className="flex h-screen overflow-hidden pt-14">
         <Sidebar
           open={sidebarOpen}
@@ -346,6 +393,8 @@ export function DashboardPage() {
               onProfile={profileDataset}
               onRename={openRenameConversation}
               onDelete={() => setModal({ type: 'delete-conversation', title: `Delete ${activeConversation.title}?` })}
+              onRetry={retryAnalysis}
+              onCancel={cancelAnalysis}
             />
           ) : (
             <section className="mx-auto max-w-5xl">
@@ -356,8 +405,8 @@ export function DashboardPage() {
         </main>
       </div>
       <input ref={emptyUploadRef} className="sr-only" type="file" accept=".csv,.xlsx,.xls,.json,.parquet" onChange={(event) => { const file = event.target.files?.[0]; if (file) uploadDataset(file, modal?.type === 'create'); event.target.value = ''; }} />
-      {modal && <Modal title={modal.title} description={modal.type === 'create' ? 'Choose a name and dataset to begin.' : undefined} danger={modal.type.startsWith('delete')} confirmLabel={modal.type.startsWith('delete') ? 'Delete' : modal.type === 'create' ? 'Start Analysis' : 'Save'} confirmDisabled={modal.type === 'create' && (!datasets.length || !modalDatasetId || !modalInput.trim())} busy={modalBusy} onClose={() => setModal(null)} onConfirm={confirmModal}>
-        {modal.type === 'create' ? <NewAnalysisFields datasets={datasets} profiles={datasetProfiles} title={modalInput} datasetId={modalDatasetId} uploading={uploading} onTitleChange={setModalInput} onDatasetChange={setModalDatasetId} onUpload={() => emptyUploadRef.current?.click()} /> : modal.type === 'rename' ? <label className="grid gap-2 text-sm font-medium text-[#3A3A3C]">Analysis name<input className="min-h-11 rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-[#1D1D1F] focus:border-brand-500" value={modalInput} onChange={(event) => setModalInput(event.target.value)} maxLength={200} autoFocus /></label> : <p className="m-0">{modal.type === 'delete-dataset' ? 'This also removes its profile and analyses. This action cannot be undone.' : 'Its messages and analysis runs will be removed. The dataset will remain.'}</p>}
+      {modal && <Modal title={modal.title} description={modal.type === 'create' ? 'Choose a name and dataset to begin.' : undefined} danger={modal.type.startsWith('delete')} confirmLabel={modal.type.startsWith('delete') ? 'Delete' : modal.type === 'create' ? 'Start Analysis' : modal.type === 'duplicate-query' ? 'Run again' : 'Save'} confirmDisabled={modal.type === 'create' && (!datasets.length || !modalDatasetId || !modalInput.trim())} busy={modalBusy} onClose={() => setModal(null)} onConfirm={confirmModal}>
+        {modal.type === 'create' ? <NewAnalysisFields datasets={datasets} profiles={datasetProfiles} title={modalInput} datasetId={modalDatasetId} uploading={uploading} onTitleChange={setModalInput} onDatasetChange={setModalDatasetId} onUpload={() => emptyUploadRef.current?.click()} /> : modal.type === 'rename' ? <label className="grid gap-2 text-sm font-medium text-[#3A3A3C]">Analysis name<input className="min-h-11 rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-[#1D1D1F] focus:border-brand-500" value={modalInput} onChange={(event) => setModalInput(event.target.value)} maxLength={200} autoFocus /></label> : modal.type === 'duplicate-query' ? <div><p className="mt-0">This question has already been analyzed for the selected dataset.</p><button className="border-0 bg-transparent p-0 text-sm font-medium text-brand-600 hover:text-brand-700" type="button" onClick={() => { navigate(`/dashboard/conversations/${conversationId}?run=${modal.runId}`); setModal(null); }}>Open existing result</button></div> : <p className="m-0">{modal.type === 'delete-dataset' ? 'This also removes its profile and analyses. This action cannot be undone.' : 'Its messages and analysis runs will be removed. The dataset will remain.'}</p>}
       </Modal>}
     </div>
   );
@@ -388,8 +437,6 @@ function progressFromAgentRuns(agentRuns) {
   if (latest.agent_name.startsWith('statistical_validator:') && latest.status === 'running') return { label: 'Validating statistics…', detail: 'Checking assumptions and running a deterministic statistical test.' };
   return { label: 'Preparing your results…', detail: 'Saving grounded evidence and formatting the final response.' };
 }
-
-const providerLabel = (provider) => provider === 'groq' ? 'Groq' : 'Gemini';
 
 async function loadResults(runs) {
   const completed = runs.filter((run) => run.status === 'completed');

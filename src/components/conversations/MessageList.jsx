@@ -38,7 +38,7 @@ export function MessageList({ messages, runs, resultsByRun, loading, analysisPro
                 : 'rounded-xl bg-[#4338CA] px-4 py-3 text-white shadow-[0_1px_2px_rgba(0,0,0,0.08)]'}>
                 <MessageContent content={assistant && result?.report ? result.report.executive_summary : message.content} assistant={assistant} />
               </div>
-              <RunBadge run={run} role={message.role} />
+              <RunBadge run={run} />
               {assistant && run && <AnalysisResult report={result?.report} charts={result?.charts} />}
             </div>
             {!assistant && <Avatar />}
@@ -81,12 +81,11 @@ function MessageContent({ content, assistant }) {
   );
 }
 
-function RunBadge({ run, role }) {
-  if (!run || (role === 'user' && run.status === 'completed')) return null;
+function RunBadge({ run }) {
+  if (!run || run.status === 'completed') return null;
   const labels = {
     pending: 'Queued',
     running: 'Analyzing',
-    completed: 'Analysis complete',
     failed: 'Analysis failed',
     cancelled: 'Cancelled',
   };
@@ -95,8 +94,6 @@ function RunBadge({ run, role }) {
     <div className={`mt-2 inline-flex items-center gap-1.5 px-1 text-[11px] font-medium ${failed ? 'text-red-600' : 'text-[#6E6E73]'}`}>
       <span className={`h-1.5 w-1.5 rounded-full ${failed ? 'bg-red-500' : 'bg-indigo-500'}`} />
       <span>{labels[run.status] ?? run.status}</span>
-      <span className="text-[#C7C7CC]">·</span>
-      <span>{providerLabel(run.llm_provider)}</span>
     </div>
   );
 }
@@ -115,5 +112,4 @@ function EmptyConversation() {
   return <div className="grid min-h-full place-content-center px-4 text-center"><h2 className="mb-2 text-lg font-semibold text-[#1D1D1F]">Ask about this dataset</h2><p className="m-0 max-w-md text-sm leading-6 text-[#6E6E73]">Results are calculated from the uploaded data and saved to this analysis.</p></div>;
 }
 
-const providerLabel = (provider) => provider === 'groq' ? 'Groq' : 'Gemini';
 const formatTime = (value) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(value));

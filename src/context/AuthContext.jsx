@@ -101,6 +101,12 @@ export function AuthProvider({ children }) {
     }
   }, [clearSession]);
 
+  const refreshUser = useCallback(async () => {
+    const currentUser = await authService.me();
+    setUser(currentUser);
+    return currentUser;
+  }, []);
+
   const value = useMemo(() => {
     return {
       user,
@@ -113,8 +119,10 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshAccessToken,
+      refreshUser,
+      clearSession,
     };
-  }, [user, tokens, isLoading, login, googleLogin, register, logout, refreshAccessToken]);
+  }, [user, tokens, isLoading, login, googleLogin, register, logout, refreshAccessToken, refreshUser, clearSession]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

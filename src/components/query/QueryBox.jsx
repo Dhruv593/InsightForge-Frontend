@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ErrorMessage } from '../common/ErrorMessage';
 
-export function QueryBox({ disabled, submitting, error, profileRequired, onProfile, onSubmit }) {
+export function QueryBox({ disabled, submitting, error, profileRequired, onProfile, onSubmit, draft }) {
   const [query, setQuery] = useState('');
   const [provider, setProvider] = useState('gemini');
+
+  useEffect(() => {
+    if (!draft?.query) return;
+    setQuery(draft.query);
+    window.requestAnimationFrame(() => document.getElementById('analysis-query')?.focus());
+  }, [draft]);
 
   async function submit(event) {
     event.preventDefault();

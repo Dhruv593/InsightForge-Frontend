@@ -87,5 +87,6 @@ export function getApiError(error, fallback = 'Something went wrong. Please try 
   return {
     code: apiError?.code ?? 'UNKNOWN_ERROR',
     message: friendlyErrors[apiError?.code] ?? apiError?.message ?? fallback,
+    details: apiError?.details ?? null,
   };
 }
