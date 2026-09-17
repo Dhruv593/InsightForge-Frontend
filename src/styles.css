@@ -16,7 +16,8 @@
 }
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Segoe UI', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
   --color-brand-500: #4f46e5;
@@ -33,4 +34,8 @@
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
     @apply outline-2 outline-offset-2 outline-brand-500;
   }
+}
+
+@layer components {
+  .landing-page, .dashboard-shell { font-family: inherit; }
 }

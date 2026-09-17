@@ -70,7 +70,13 @@ function downloadCsv(chart, rows) {
   globalThis.URL.revokeObjectURL(url);
 }
 
-function csvCell(value) { return `"${String(value ?? '').replace(/"/g, '""')}"`; }
+function csvCell(value) {
+  let text = String(value ?? '');
+  // Spreadsheet applications can execute formulas embedded in imported CSV cells.
+  // Preserve ordinary numbers while neutralizing formula-like text values.
+  if (typeof value !== 'number' && /^[\t\r ]*[=+\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+}
 
 function ChartSkeleton({ className }) {
   return <div className={`h-86 animate-pulse rounded-xl border border-[#E5E5EA] bg-white ${className}`} aria-label="Loading chart" />;

@@ -65,7 +65,7 @@ export function GoogleSignIn() {
             try {
               await googleLogin(credential);
               if (!active) return;
-              success('You’re signed in. Welcome to InsightForge!');
+              success('You’re signed in. Welcome to Tatparya!');
               navigate('/dashboard', { replace: true });
             } catch (error) {
               if (active) {

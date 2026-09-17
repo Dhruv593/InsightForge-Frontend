@@ -13,6 +13,7 @@ export async function buildReportPdf(rawReport, charts = []) {
   const report = dashboardReport(rawReport, charts);
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4', compress: true });
+  const brandLogo = await loadBrandLogo();
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
   const margin = 46;
@@ -25,7 +26,8 @@ export async function buildReportPdf(rawReport, charts = []) {
   function continuationPage() {
     pdf.addPage();
     pdf.setFillColor(...C.brand); pdf.rect(0, 0, 7, pageHeight, 'F');
-    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9); pdf.setTextColor(...C.brand); pdf.text('INSIGHTFORGE', margin, 32);
+    if (brandLogo) pdf.addImage(brandLogo, 'PNG', margin, 15, 22, 22);
+    pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9); pdf.setTextColor(...C.brand); pdf.text('TATPARYA', margin + (brandLogo ? 30 : 0), 30);
     pdf.setDrawColor(...C.line); pdf.line(margin, 43, pageWidth - margin, 43);
     y = 66;
   }
@@ -50,7 +52,8 @@ export async function buildReportPdf(rawReport, charts = []) {
 
   pdf.setFillColor(...C.ink); pdf.rect(0, 0, pageWidth, 154, 'F');
   pdf.setFillColor(...C.brand); pdf.rect(0, 0, 8, 154, 'F');
-  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9); pdf.setTextColor(194, 190, 255); pdf.text('INSIGHTFORGE', margin, 35);
+  if (brandLogo) pdf.addImage(brandLogo, 'PNG', margin, 18, 24, 24);
+  pdf.setFont('helvetica', 'bold'); pdf.setFontSize(9); pdf.setTextColor(194, 190, 255); pdf.text('TATPARYA', margin + (brandLogo ? 33 : 0), 34);
   pdf.setFontSize(23); pdf.setTextColor(255, 255, 255); pdf.text('Business analysis report', margin, 72);
   pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5); pdf.setTextColor(207, 211, 222); pdf.text(`Prepared ${new Intl.DateTimeFormat('en', { dateStyle: 'long' }).format(new Date())}`, margin, 95);
   pdf.setFontSize(8); pdf.text('VERIFIED DATASET EVIDENCE', margin, 126); y = 180;
@@ -96,10 +99,19 @@ export async function buildReportPdf(rawReport, charts = []) {
   const pageCount = pdf.getNumberOfPages();
   for (let page = 1; page <= pageCount; page += 1) {
     pdf.setPage(page); pdf.setDrawColor(...C.line); pdf.line(margin, pageHeight - 38, pageWidth - margin, pageHeight - 38);
-    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(...C.muted); pdf.text('InsightForge | Business analysis', margin, pageHeight - 22); pdf.text(`Page ${page} of ${pageCount}`, pageWidth - margin, pageHeight - 22, { align: 'right' });
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(...C.muted); pdf.text('Tatparya | Business analysis', margin, pageHeight - 22); pdf.text(`Page ${page} of ${pageCount}`, pageWidth - margin, pageHeight - 22, { align: 'right' });
   }
   const id = rawReport?.analysis_run_id || rawReport?.id || 'analysis';
-  return { pdf, filename: `insightforge-report-${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf` };
+  return { pdf, filename: `tatparya-report-${String(id).replace(/[^a-zA-Z0-9_-]/g, '')}.pdf` };
+}
+
+function loadBrandLogo() {
+  return new Promise((resolve) => {
+    const logo = new window.Image();
+    logo.onload = () => resolve(logo);
+    logo.onerror = () => resolve(null);
+    logo.src = '/brand/logo1.png';
+  });
 }
 
 async function chartImage(Plotly, chart) {

@@ -21,7 +21,7 @@ export function ReportPdfPreview({ url, filename, onClose, onDownloaded }) {
           </div>
         </div>
         <div className="min-h-0 flex-1 bg-slate-100 p-2 sm:p-4">
-          <iframe className="h-full w-full rounded-lg border border-slate-200 bg-white" src={url} title="InsightForge PDF report preview" />
+          <iframe className="h-full w-full rounded-lg border border-slate-200 bg-white" src={url} title="Tatparya PDF report preview" />
         </div>
       </section>
     </div>

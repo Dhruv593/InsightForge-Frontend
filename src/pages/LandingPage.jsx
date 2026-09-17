@@ -1,174 +1,111 @@
 import { useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { BrandLogo } from '../components/common/BrandLogo';
 
 const steps = [
-  ['01', 'Bring your business data.', 'Upload a spreadsheet or data file. Get a clear view of its columns, missing entries, and data quality.', 'upload'],
-  ['02', 'Ask what matters to you.', 'Ask a question in your own words. Explore revenue, compare regions, or understand changes over time.', 'question'],
-  ['03', 'Take the answer with you.', 'Review the findings and supporting visuals. Download a PDF to share at your next business review.', 'report'],
+  { title: 'Start with your file.', description: 'Upload CSV, Excel, JSON, or Parquet. Review columns, missing values, and data quality before you begin.', image: '/dataset-preview.png', alt: 'Tatparya dataset profile with row, column, and quality information' },
+  { title: 'Ask the business question.', description: 'Ask in plain language. Tatparya coordinates the analysis, calculations, and supporting evidence.', image: '/workspace-preview.png', alt: 'Tatparya workspace for asking questions about a dataset' },
+  { title: 'Bring the answer to the table.', description: 'Review KPIs, findings, recommendations, and charts. Preview a professional report before downloading it.', image: '/analysis-preview.png', alt: 'Tatparya analysis dashboard with metrics, charts, and findings' },
 ];
-const questions = [
-  ['Sales performance', 'Which regions contribute the most to revenue?', 'Compare performance across the places you do business.'],
-  ['Product performance', 'Which products are our strongest performers?', 'See which products lead and where to take a closer look.'],
-  ['Business trends', 'How has revenue changed month by month?', 'Follow changes over time and investigate the patterns.'],
+
+const capabilities = [
+  ['Your question, in your words', 'Ask about revenue, growth, customers, products, or regional performance without writing SQL or formulas.'],
+  ['Findings with visual context', 'See each result beside the chart that supports it, so the answer is easier to understand and explain.'],
+  ['Recommendations you can act on', 'Turn patterns into practical next steps while keeping the final business decision in your hands.'],
+  ['A report ready to share', 'Preview and download a polished PDF for your team, client, or next business review.'],
 ];
+
 const faqs = [
-  ['Do I need to know how to code?', 'No. Upload your data and ask a question in everyday language. InsightForge presents the results with findings and supporting charts when the data can support them.'],
-  ['What files can I upload?', 'InsightForge supports CSV, Excel, JSON, and Parquet files. Start with a structured file that has clear column names, such as your sales or revenue export.'],
-  ['Can I download my analysis?', 'Yes. When an analysis report is available, use Download PDF to save its findings, supporting visuals, and data notes.'],
-  ['What happens if my data cannot answer a question?', 'InsightForge explains what could not be answered and shows available results where possible. Reports include data notes and limitations so you can judge the answer in context.'],
+  ['Do I need to know how to code?', 'No. Ask questions using normal business language. Tatparya handles the analysis workflow and presents the answer with supporting evidence.'],
+  ['Which files can I upload?', 'Tatparya supports CSV, Excel, JSON, and Parquet files. Files with clear column names and consistent rows produce the best results.'],
+  ['Can I ask follow-up questions?', 'Yes. Compare another group, investigate a change, or revisit an earlier result without starting over.'],
+  ['Can I download the results?', 'Yes. Preview a report before downloading a PDF with the important metrics, findings, recommendations, and visuals.'],
+  ['Is every answer based on my data?', 'Calculations and charts are generated from the selected dataset. Tatparya will not claim facts that the available fields cannot support.'],
 ];
+
+const primary = 'inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#0B111E] px-6 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#172033]';
+const heading = 'm-0 text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] sm:text-5xl';
 
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
-  return (
-    <div className="min-h-screen bg-white text-[#20212B] selection:bg-indigo-100">
-      <header className="sticky top-0 z-20 border-b border-[#ECECF1] bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
-          <Brand />
-          <nav className="hidden items-center gap-8 text-[13px] font-medium text-[#626374] lg:flex" aria-label="Main navigation">
-            <a className="transition hover:text-brand-600" href="#product">Product</a><a className="transition hover:text-brand-600" href="#how-it-works">How it works</a><a className="transition hover:text-brand-600" href="#use-cases">Use cases</a><a className="transition hover:text-brand-600" href="#questions">FAQs</a>
-          </nav>
-          <div className="flex items-center gap-5"><Link className="hidden text-[13px] font-medium hover:text-brand-600 sm:block" to="/login">Log in</Link><Link className="rounded-full bg-brand-600 px-5 py-3 text-[13px] font-semibold text-white transition hover:bg-brand-700" to="/register">Get started <span className="ml-2" aria-hidden="true">↗</span></Link></div>
+  return <div className="landing-page min-h-screen overflow-x-hidden bg-[#FAFBFD] text-slate-900 selection:bg-slate-900 selection:text-white">
+    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-[#FAFBFD]/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
+        <Link to="/" className="inline-flex" aria-label="Tatparya home"><BrandLogo className="h-10 w-auto max-w-[180px]" /></Link>
+        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex" aria-label="Main navigation">
+          <a className="hover:text-slate-950" href="#preview">Product preview</a><a className="hover:text-slate-950" href="#how-it-works">How it works</a><a className="hover:text-slate-950" href="#platform">Platform</a><a className="hover:text-slate-950" href="#faq">FAQs</a>
+        </nav>
+        <div className="flex items-center gap-5">
+          <Link className="hidden text-sm font-medium text-slate-600 hover:text-slate-950 sm:block" to="/login">Log in</Link>
+          <Link className="hidden rounded-full bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800 sm:inline-flex sm:items-center sm:gap-2" to="/register">Get started <Arrow /></Link>
+          <button className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:hidden" type="button" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close' : 'Menu'}</button>
         </div>
-      </header>
+      </div>
+      {menuOpen && <nav className="grid gap-4 border-t border-slate-200 bg-white px-6 py-5 text-sm md:hidden">{[['#preview', 'Product preview'], ['#how-it-works', 'How it works'], ['#platform', 'Platform'], ['#faq', 'FAQs']].map(([href, label]) => <a href={href} key={href} onClick={() => setMenuOpen(false)}>{label}</a>)}<Link to="/login">Log in</Link><Link to="/register">Create an account →</Link></nav>}
+    </header>
 
-      <main>
-        <section className="relative overflow-hidden px-5 pb-10 pt-16 sm:px-8 sm:pt-24 lg:pt-28">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-40 right-[-10%] h-[420px] w-[420px] rounded-full bg-brand-600/10 blur-3xl sm:h-[560px] sm:w-[560px]" />
-          <div className="relative mx-auto max-w-3xl text-center">
-            <Eyebrow>BUILT FOR SMALL &amp; GROWING BUSINESSES</Eyebrow>
-            <h1 className="mb-0 mt-5 text-[42px] font-semibold leading-[1.08] tracking-[-0.04em] sm:text-6xl lg:text-[68px]">One workspace. A clearer picture of <span className="text-brand-600">your business.</span></h1>
-            <p className="mx-auto mb-0 mt-6 max-w-xl text-base leading-7 text-[#696B7B] sm:text-lg sm:leading-8">Turn everyday spreadsheets into meaningful insights. Ask questions, explore your numbers, and share the story behind them.</p>
-            <div className="mt-8 flex flex-col items-center gap-4">
-              <Link className="inline-flex items-center gap-4 rounded-full bg-brand-600 px-7 py-4 text-sm font-semibold text-white transition hover:bg-brand-700" to="/register">Get started <Arrow /></Link>
-              <p className="m-0 text-xs text-[#898B98]">Upload your file. Ask naturally. No coding required.</p>
-            </div>
-          </div>
+    <main>
+      <section className="mx-auto max-w-7xl px-6 pb-24 pt-20 text-center lg:px-12 lg:pb-28 lg:pt-28">
+        <div className="mx-auto flex max-w-4xl flex-col items-center">
+          <h1 className="m-0 text-5xl font-extrabold leading-[1.06] tracking-[-0.055em] text-slate-950 sm:text-6xl lg:text-7xl">Less spreadsheet.<br /><span className="text-slate-600">More perspective.</span></h1>
+          <p className="mb-0 mt-7 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">Ask a question about your business data and receive clear findings, useful visuals, and practical recommendations—without writing code.</p>
+          <div className="mt-9 flex flex-wrap justify-center gap-4"><Link className={primary} to="/register">Explore your data <Arrow /></Link><a className="inline-flex min-h-12 items-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="#preview">See the product ↓</a></div>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-slate-400"><span>No coding required</span><span>•</span>{['CSV', 'XLSX', 'JSON', 'PARQUET'].map((item) => <span className="rounded bg-slate-100 px-2 py-1 font-mono text-slate-500" key={item}>{item}</span>)}</div>
+        </div>
+      </section>
 
-          <WorkspacePreview />
+      <section id="how-it-works" className="scroll-mt-20 bg-[#0E1726] text-white">
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
+          <div className="grid items-end gap-8 border-b border-slate-700/60 pb-16 lg:grid-cols-12"><h2 className={`${heading} lg:col-span-7`}>The question is yours.<br /><span className="text-slate-400">The heavy lifting is ours.</span></h2><p className="m-0 text-base leading-7 text-slate-400 lg:col-span-5">Tatparya combines reliable calculations, clear explanations, and visual evidence so you can spend less time preparing data and more time deciding what comes next.</p></div>
+          <div className="grid gap-12 pt-16 md:grid-cols-3 lg:gap-16">{[
+            ['Understand performance', 'Compare products, regions, and customers to see what contributes most to the business.'],
+            ['Investigate the change', 'Explore trends over time and ask follow-up questions when something needs a closer look.'],
+            ['Share a clear answer', 'Keep findings, recommendations, and charts together in one report your team can review.'],
+          ].map(([title, text], index) => <article className="space-y-4" key={title}><span className="block border-b border-slate-700/60 pb-2 font-mono text-xs font-bold tracking-widest text-slate-400">0{index + 1}</span><h3 className="m-0 text-xl font-bold">{title}</h3><p className="m-0 text-sm leading-7 text-slate-400">{text}</p></article>)}</div>
+        </div>
+      </section>
 
-          <div className="mx-auto mt-10 flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-[#ECECF1] pt-8">
-            <span className="text-xs text-[#898B98]">Works with the files you already use</span>
-            {['CSV', 'Excel', 'JSON', 'Parquet'].map((format) => <span key={format} className="flex items-center gap-2 rounded-full border border-[#ECECF1] bg-[#FAFAFC] px-3 py-1.5 text-xs font-medium text-[#525468]"><Icon name="file" className="h-3.5 w-3.5 text-[#9395A5]" />{format}</span>)}
-          </div>
-        </section>
+      <ProductWalkthrough />
 
-        <section id="how-it-works" className="scroll-mt-20 bg-[#191827] text-white">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
-            <div className="max-w-2xl"><Eyebrow dark>A SIMPLER WAY TO WORK</Eyebrow><h2 className="mb-0 mt-4 text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-[42px]">From a file on your desktop<br className="hidden sm:block" /> to a clearer view of your business.</h2></div>
-            <div className="relative mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
-              <div aria-hidden="true" className="absolute left-0 right-0 top-[52px] hidden h-px bg-white/15 md:block" />
-              {steps.map(([number, title, description, icon]) => (
-                <article key={number} className="relative">
-                  <div className="flex items-center gap-4">
-                    <div className="relative z-10 grid h-[52px] w-[52px] shrink-0 place-items-center rounded-2xl bg-brand-600 text-white shadow-[0_10px_30px_-12px_rgba(99,102,241,0.7)]"><Icon name={icon} className="h-5 w-5" /></div>
-                    <span className="text-xs font-medium tabular-nums text-[#AAA7BE]">Step {number}</span>
-                  </div>
-                  <h3 className="mb-3 mt-6 text-lg font-semibold tracking-tight">{title}</h3>
-                  <p className="m-0 max-w-sm text-sm leading-7 text-[#C0BECE]">{description}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+      <section id="platform" className="scroll-mt-20 bg-[#070D18] text-white">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12">
+          <div className="h-fit lg:sticky lg:top-32 lg:col-span-5"><h2 className={heading}>Useful answers.<br />Room to go deeper.</h2><p className="mb-0 mt-6 max-w-md text-base leading-7 text-slate-400">A good analysis should start a better conversation. Follow a result, compare another group, or take the findings into your next review.</p><Link className="mt-8 inline-flex items-center gap-2 border-b border-slate-600 pb-1 text-sm font-semibold hover:border-blue-400 hover:text-blue-400" to="/register">Start your first analysis <Arrow /></Link></div>
+          <div className="grid gap-6 lg:col-span-7">{capabilities.map(([title, text], index) => <article className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 hover:border-slate-700" key={title}><span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-500/10 text-sm font-bold text-blue-400">0{index + 1}</span><h3 className="mb-0 mt-5 text-xl font-bold">{title}</h3><p className="mb-0 mt-3 text-sm leading-7 text-slate-400">{text}</p></article>)}</div>
+        </div>
+      </section>
 
-        <section className="border-b border-[#ECECF1] bg-[#F8F8FB]">
-          <div className="mx-auto max-w-7xl px-5 py-16 text-center sm:px-8 sm:py-22">
-            <Eyebrow>THE CONTEXT BEHIND THE NUMBERS</Eyebrow>
-            <h2 className="mx-auto mb-4 mt-4 max-w-2xl text-3xl font-semibold leading-tight tracking-[-0.035em] sm:text-[42px]">A useful answer is more than a number.</h2>
-            <p className="mx-auto mb-10 max-w-md text-base leading-7 text-[#737584]">Keep the question, the findings, and the supporting visuals together. Return to earlier questions without losing the context.</p>
-            <div className="grid gap-5 text-left sm:grid-cols-3">{[
-              ['chart', 'See the pattern', 'Charts make comparisons, contributions, and trends easier to follow.'],
-              ['check', 'Understand the caveats', 'Data notes explain missing information and the limits of an answer.'],
-              ['report', 'Share the full picture', 'Export a PDF with findings and supporting visuals in one report.'],
-            ].map(([icon, title, description]) => <div key={title} className="rounded-2xl border border-[#E4E4EC] bg-white p-7"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-600/10 text-brand-600"><Icon name={icon} className="h-5 w-5" /></div><h3 className="mb-0 mt-5 text-base font-semibold">{title}</h3><p className="mb-0 mt-2 text-sm leading-6 text-[#737584]">{description}</p></div>)}</div>
-            <Link className="mt-10 inline-flex items-center gap-3 text-sm font-semibold text-brand-600 hover:text-brand-700" to="/register">Explore your data <Arrow /></Link>
-          </div>
-        </section>
+      <section id="faq" className="scroll-mt-20 bg-white">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12">
+          <div className="lg:col-span-5"><h2 className={`${heading} text-slate-950`}>A few things<br />worth knowing.</h2><p className="mb-0 mt-5 max-w-sm text-base leading-7 text-slate-600">Everything you need to know before starting with your first file.</p></div>
+          <div className="lg:col-span-7">{faqs.map(([question, answer]) => <details className="group border-b border-slate-200 py-6 first:pt-0" key={question}><summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">{question}<span className="text-2xl font-light text-slate-400 transition group-open:rotate-45">+</span></summary><p className="mb-0 mt-4 pr-8 text-sm leading-7 text-slate-600">{answer}</p></details>)}</div>
+        </div>
+      </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
-          <div className="mx-auto mb-14 max-w-2xl text-center"><Eyebrow>ONE CONNECTED WORKFLOW</Eyebrow><h2 className="mb-4 mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-[42px]">From understanding your data to sharing your next insight.</h2><p className="m-0 text-sm leading-7 text-[#737584]">Everything stays together, so you can focus on your business questions.</p></div>
-          <div className="flex flex-col gap-16 sm:gap-20">{[
-            ['01 / DATA WORKSPACE', 'Start with a clear foundation.', 'Review the quality of your spreadsheet and see what is available to analyze.', '/dataset-preview.png', 'Dataset profile in InsightForge'],
-            ['02 / ANALYSIS WORKSPACE', 'Make the numbers make sense.', 'Bring questions, visual comparisons, and follow-up conversations into one place.', '/analysis-preview.png', 'Analysis and supporting visuals in InsightForge'],
-          ].map(([label, title, description, image, alt], index) => (
-            <article key={label} className={`flex flex-col items-center gap-8 lg:gap-14 ${index % 2 ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
-              <div className="lg:w-[42%]">
-                <span className="inline-block rounded-full bg-brand-600/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-600">{label}</span>
-                <h3 className="mb-3 mt-5 text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h3>
-                <p className="mb-5 max-w-md text-sm leading-7 text-[#737584]">{description}</p>
-                <Link to="/register" className="inline-flex items-center gap-3 text-sm font-semibold text-brand-600 hover:text-brand-700">Get started <Arrow /></Link>
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-[#E4E4EC] bg-[#FAFAFC] shadow-[0_24px_60px_-30px_rgba(35,30,70,0.35)] lg:w-[58%]">
-                <img src={image} alt={alt} width="1847" height="1015" loading="lazy" className="block h-auto w-full" />
-              </div>
-            </article>
-          ))}</div>
-        </section>
+      <section className="bg-[#0E1726] text-white"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-10 px-6 py-20 sm:flex-row sm:items-center lg:px-12"><h2 className={`${heading} max-w-2xl`}>Your next insight starts with a question.</h2><div><Link className="inline-flex min-h-14 items-center gap-3 rounded-xl bg-white px-7 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100" to="/register">Get started <Arrow /></Link><p className="mb-0 mt-4 text-xs text-slate-400">Bring your file. We’ll help you explore it.</p></div></div></section>
+    </main>
 
-        <section id="use-cases" className="scroll-mt-20 bg-[#232035] text-white">
-          <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24">
-            <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><Eyebrow dark>START WITH A BUSINESS QUESTION</Eyebrow><h2 className="mb-0 mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-[42px]">What would you like to know?</h2></div><p className="m-0 max-w-xs text-sm leading-6 text-[#C0BECE]">A few starting points for your next analysis, when your data contains these fields.</p></div>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">{questions.map(([label, question, description]) => <article className="flex flex-col rounded-xl border-l-2 border-brand-600 bg-white/5 p-6 sm:p-7" key={label}><p className="m-0 text-xs font-medium text-indigo-200">{label}</p><h3 className="mb-4 mt-6 text-xl font-medium leading-8 tracking-tight">{question}</h3><p className="mb-0 mt-auto text-sm leading-6 text-[#C0BECE]">{description}</p></article>)}</div>
-          </div>
-        </section>
-
-        <section id="questions" className="mx-auto grid max-w-7xl scroll-mt-24 gap-8 border-t border-[#ECECF1] px-5 py-16 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-          <div><Eyebrow>A LITTLE MORE CLARITY</Eyebrow><h2 className="mb-0 mt-4 text-3xl font-semibold tracking-[-0.035em] sm:text-[40px]">Before you get started.</h2></div>
-          <div>{faqs.map(([question, answer]) => <details key={question} className="group border-b border-[#E8E8EF] py-5 first:pt-0"><summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-sm font-semibold [&::-webkit-details-marker]:hidden group-open:text-brand-600">{question}<span className="text-xl font-normal text-[#9593AA] group-open:hidden" aria-hidden="true">+</span><span className="hidden text-xl font-normal text-brand-600 group-open:block" aria-hidden="true">−</span></summary><p className="mb-0 mt-4 max-w-xl text-sm leading-7 text-[#737584]">{answer}</p></details>)}</div>
-        </section>
-
-        <section className="px-5 pb-16 pt-4 sm:px-8"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-7 rounded-2xl bg-[#28234A] px-7 py-12 text-white sm:px-12 md:flex-row md:items-center"><div><p className="mb-3 mt-0 text-xs font-medium text-[#B9B4D9]">YOUR NEXT QUESTION STARTS HERE</p><h2 className="m-0 text-3xl font-medium leading-tight tracking-[-0.025em] sm:text-4xl">Put your business data to work.</h2></div><Link className="inline-flex shrink-0 items-center gap-5 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-[#28234A] transition hover:bg-indigo-50" to="/register">Get started <Arrow /></Link></div></section>
-      </main>
-      <footer className="border-t border-[#ECECF1]"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-5 py-8 sm:flex-row sm:items-center sm:px-8"><div><Brand /><p className="mb-0 mt-2 text-xs text-[#898B98]">A clearer view of your business data.</p></div><div className="flex items-center gap-6 text-xs text-[#737584]"><a className="hover:text-brand-600" href="#product">Product</a><Link className="hover:text-brand-600" to="/login">Log in</Link><span>© {new Date().getFullYear()} InsightForge</span></div></div></footer>
-    </div>
-  );
+    <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-6 py-10 text-sm text-slate-500 sm:flex-row sm:items-center lg:px-12"><Link className="inline-flex" to="/" aria-label="Tatparya home"><BrandLogo className="h-9 w-auto max-w-[160px]" /></Link><div className="flex flex-wrap gap-6"><a href="#preview">Product preview</a><Link to="/login">Log in</Link><span>© {new Date().getFullYear()} Tatparya</span></div></div></footer>
+  </div>;
 }
 
-function WorkspacePreview() {
-  const [active, setActive] = useState('analysis');
+function ProductWalkthrough() {
+  const [active, setActive] = useState(0);
   const dialog = useRef(null);
-  const screens = {
-    analysis: { label: 'Explore an analysis', image: '/analysis-preview.png', title: 'Your question. The bigger picture.', description: 'Follow revenue trends, compare regions, and keep the conversation going—all in one workspace.', alt: 'InsightForge analysis screen with revenue trend and regional comparison charts.' },
-    dataset: { label: 'Understand your data', image: '/dataset-preview.png', title: 'Know your data before you dive in.', description: 'Review the rows, columns, and quality of your file before starting your next analysis.', alt: 'InsightForge dataset profile showing row counts, columns, missing cells, and data quality notes.' },
-  };
-  const screen = screens[active];
-  return (
-    <div id="product" className="relative mx-auto mt-14 max-w-7xl scroll-mt-24 sm:mt-16">
-      <div className="mb-6 flex justify-center" role="group" aria-label="Choose a product preview">
-        <div className="inline-flex gap-1 rounded-full border border-[#E5E5ED] bg-[#F8F8FB] p-1">
-          {Object.entries(screens).map(([key]) => <button key={key} type="button" aria-pressed={active === key} onClick={() => setActive(key)} className={`rounded-full px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 sm:px-5 ${active === key ? 'bg-brand-600 text-white shadow-[0_6px_16px_-6px_rgba(99,102,241,0.6)]' : 'text-[#737584] hover:text-[#20212B]'}`}>{key === 'analysis' ? 'Analysis workspace' : 'Dataset overview'}</button>)}
-        </div>
-      </div>
-      <div className="relative overflow-hidden rounded-2xl border border-[#E2E0F1] bg-[#F1F0F9] p-3 sm:p-6 lg:p-8">
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-brand-600/10 blur-3xl" />
-        <div className="relative mb-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center" aria-live="polite">
-          <div><h2 className="m-0 text-lg font-semibold tracking-tight">{screen.title}</h2><p className="mb-0 mt-2 max-w-xl text-sm leading-6 text-[#696B7B]">{screen.description}</p></div>
-          <button type="button" onClick={() => dialog.current.showModal()} className="shrink-0 self-start rounded-full border border-[#D9D6E8] bg-white px-4 py-2.5 text-xs font-medium transition hover:border-brand-600 hover:text-brand-600 sm:self-auto">View full screen ↗</button>
-        </div>
-        <button type="button" onClick={() => dialog.current.showModal()} aria-label={`Enlarge ${screen.label.toLowerCase()} screenshot`} className="relative block w-full cursor-zoom-in overflow-hidden rounded-xl border border-[#DFDDE9] bg-white shadow-[0_24px_60px_-24px_rgba(35,30,70,0.3)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600">
-          <div className="flex items-center gap-1.5 border-b border-[#ECECF1] bg-[#FAFAFC] px-4 py-2.5" aria-hidden="true"><span className="h-2.5 w-2.5 rounded-full bg-[#E4E4EC]" /><span className="h-2.5 w-2.5 rounded-full bg-[#E4E4EC]" /><span className="h-2.5 w-2.5 rounded-full bg-[#E4E4EC]" /></div>
-          <img key={active} src={screen.image} width="1847" height="1015" fetchPriority="high" alt={screen.alt} className="block aspect-[1847/1015] w-full object-contain motion-safe:animate-[preview-reveal_250ms_ease-out]" />
-        </button>
-        <p className="relative mb-0 mt-4 text-center text-[11px] leading-5 text-[#77748F]">Product screenshots · Preview only. Results depend on your uploaded data.</p>
-      </div>
-      <dialog ref={dialog} className="fixed inset-0 m-auto max-h-[94dvh] w-[96vw] max-w-[1800px] overflow-auto rounded-xl border border-[#E2E0F1] bg-white p-3 shadow-xl backdrop:bg-slate-950/60 backdrop:backdrop-blur-sm sm:p-5">
-        <div className="mb-3 flex items-center justify-between gap-4"><p className="m-0 text-sm font-semibold">{screen.title}</p><button type="button" onClick={() => dialog.current.close()} className="rounded-lg border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50" autoFocus>Close ×</button></div>
-        <img src={screen.image} width="1847" height="1015" alt={screen.alt} className="h-auto w-full" />
-      </dialog>
+  const stage = steps[active];
+  return <section id="preview" className="scroll-mt-20 border-b border-slate-200 bg-white"><div className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
+    <div className="max-w-3xl"><h2 className={`${heading} text-slate-950`}>One file.<br />A whole new perspective.</h2><p className="mb-0 mt-5 text-lg leading-8 text-slate-600">A connected workspace for your data, questions, and decisions. See how Tatparya moves from upload to a shareable answer.</p></div>
+    <div className="mt-16 grid items-start gap-10 lg:grid-cols-12">
+      <div className="grid gap-3 lg:col-span-4">{steps.map((item, index) => <button type="button" key={item.title} aria-pressed={active === index} onClick={() => setActive(index)} className={`rounded-2xl border p-5 text-left transition ${active === index ? 'border-slate-800 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'}`}><span className="font-mono text-xs text-slate-400">0{index + 1}</span><span className={`mt-1 block text-base font-bold ${active === index ? 'text-white' : 'text-slate-900'}`}>{item.title}</span><span className={`mt-2 block text-xs leading-6 ${active === index ? 'text-slate-300' : 'text-slate-500'}`}>{item.description}</span></button>)}</div>
+      <div className="min-w-0 lg:col-span-8"><div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/70"><div className="flex h-10 items-center justify-between border-b border-slate-200 bg-slate-100/90 px-4"><div className="flex items-center gap-2"><i className="h-3 w-3 rounded-full bg-slate-300" /><i className="h-3 w-3 rounded-full bg-slate-300" /><i className="h-3 w-3 rounded-full bg-slate-300" /><span className="ml-3 hidden font-mono text-[10px] text-slate-500 sm:inline">Tatparya workspace</span></div><span className="font-mono text-[10px] text-slate-400">Product preview</span></div><button type="button" className="block w-full cursor-zoom-in border-0 bg-white p-0" onClick={() => dialog.current?.showModal()}><img key={stage.image} className="block h-auto w-full animate-[preview-reveal_300ms_ease-out]" src={stage.image} alt={stage.alt} width="1847" height="1015" /></button></div><div className="mt-4 flex justify-between text-xs text-slate-400"><span>Inside Tatparya · Real product screen</span><button type="button" className="border-0 bg-transparent p-0 font-medium text-slate-600" onClick={() => dialog.current?.showModal()}>View full screen ↗</button></div></div>
     </div>
-  );
+    <dialog ref={dialog} className="fixed inset-0 m-auto max-h-[94dvh] w-[96vw] max-w-[1600px] overflow-auto rounded-2xl border border-slate-700 bg-slate-950 p-3 text-white backdrop:bg-slate-950/85"><div className="mb-3 flex items-center justify-between"><p className="m-0 text-sm font-semibold">{stage.title}</p><button type="button" className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm" onClick={() => dialog.current?.close()}>Close ×</button></div><img className="block h-auto w-full rounded-xl" src={stage.image} alt={stage.alt} width="1847" height="1015" /></dialog>
+  </div></section>;
 }
 
-function Brand() {
-  return <Link className="inline-flex items-center gap-2.5 text-lg font-semibold tracking-tight no-underline" to="/" aria-label="InsightForge home"><span className="grid h-8 w-8 place-items-center rounded-lg bg-brand-600 text-[10px] font-semibold tracking-normal text-white">IF</span>InsightForge</Link>;
-}
-function Eyebrow({ children, dark = false }) { return <p className={`m-0 text-[10px] font-semibold tracking-[0.15em] sm:text-[11px] ${dark ? 'text-indigo-200' : 'text-brand-600'}`}>{children}</p>; }
-function Arrow() { return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" /></svg>; }
-function Icon({ name, className }) {
-  const paths = { upload: 'M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5', question: 'M5 4h14v12H9l-4 4V4m4 4h6m-6 4h4', report: 'M6 3h9l4 4v14H6V3m8 0v5h5M9 12h7m-7 4h7', file: 'M6 3h9l4 4v14H6V3m8 0v5h5', chart: 'M4 3v17h17M8 15v-4m5 4V7m5 8V4', check: 'm4 12 5 5L20 6' };
-  return <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[name]} /></svg>;
+function Arrow() {
+  return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
 }

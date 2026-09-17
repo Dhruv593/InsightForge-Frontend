@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { AnalysisResult } from '../results/AnalysisResult';
+import { BrandLogo } from '../common/BrandLogo';
 
 export function MessageList({ messages, runs, resultsByRun, loading, analysisProgress }) {
   const bottomRef = useRef(null);
@@ -30,7 +31,7 @@ export function MessageList({ messages, runs, resultsByRun, loading, analysisPro
             {assistant && <Avatar assistant />}
             <div className={`flex flex-col ${assistant ? 'w-[calc(100%-2.5rem)] max-w-4xl items-start' : 'max-w-[82%] items-end sm:max-w-[70%]'}`}>
               <div className="mb-1.5 flex items-center gap-2 px-1 text-[11px] text-slate-400">
-                <span className="font-medium text-[#515154]">{assistant ? 'InsightForge' : 'You'}</span>
+                <span className="font-medium text-[#515154]">{assistant ? 'Tatparya' : 'You'}</span>
                 <time dateTime={message.created_at}>{formatTime(message.created_at)}</time>
               </div>
               <div className={assistant
@@ -100,7 +101,7 @@ function RunBadge({ run }) {
 
 function Avatar({ assistant = false }) {
   return assistant
-    ? <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#1D1D1F] text-[9px] font-semibold text-white shadow-sm">IF</div>
+    ? <div className="h-8 w-8 shrink-0 overflow-hidden rounded-lg shadow-sm"><BrandLogo variant="symbol" className="h-full w-full" alt="Tatparya" /></div>
     : <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#E5E5EA] text-[9px] font-semibold text-[#6E6E73]">You</div>;
 }
 

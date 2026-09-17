@@ -1,11 +1,11 @@
-# InsightForge frontend
+# Tatparya frontend
 
-React and Vite frontend for the InsightForge API. It uses Google Fonts Inter typography and inline Tailwind utility classes for the complete responsive interface.
+React and Vite frontend for the Tatparya API. It uses Plus Jakarta Sans typography and inline Tailwind utility classes for the complete responsive interface.
 
 ## Requirements
 
 - Node.js 22.13 or newer
-- The InsightForge FastAPI backend configured and running
+- The Tatparya FastAPI backend configured and running
 
 ## Setup
 

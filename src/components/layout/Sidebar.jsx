@@ -18,7 +18,7 @@ export function Sidebar({ open, pinned, onPin, datasets, datasetProfiles, datase
           <span className="text-lg font-light leading-none text-brand-600">+</span>New Analysis
         </button>
       </div>
-      <nav className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-3 pb-5 pt-6" aria-label="InsightForge workspace">
+      <nav className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-3 pb-5 pt-6" aria-label="Tatparya workspace">
         <SidebarSection title="Recent Analyses">
           {conversationsLoading ? <SidebarNote>Loading analyses…</SidebarNote> : conversations.length === 0 ? <SidebarNote>No analyses yet.</SidebarNote> : <ul className="m-0 grid min-w-0 grid-cols-[minmax(0,1fr)] list-none gap-0.5 p-0">{conversations.map((conversation) => <li className="min-w-0" key={conversation.id}><button className={`block w-full min-w-0 max-w-full overflow-hidden rounded-lg border-0 px-3 py-2.5 text-left transition ${conversation.id === selectedConversationId ? 'bg-indigo-50 text-indigo-950' : 'bg-transparent text-[#3A3A3C] hover:bg-black/[0.035]'}`} type="button" title={conversation.title} onClick={() => onSelectConversation(conversation.id)}><span className="block overflow-hidden text-ellipsis whitespace-nowrap text-[13px] font-medium">{conversation.title}</span><span className="mt-0.5 block text-[11px] text-[#86868B]">{formatDate(conversation.updated_at)}</span></button></li>)}</ul>}
         </SidebarSection>

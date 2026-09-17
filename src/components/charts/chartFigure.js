@@ -17,7 +17,7 @@ export function chartFigure(chart) {
           colorway: COLORS,
           showlegend: traces.length > 1 || ['pie', 'donut'].includes(chart.chart_type),
           legend: { orientation: 'h', x: 0, y: -0.22, font: { size: 9, color: '#6E6E73' } },
-          font: { family: '-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif', size: 10, color: '#6E6E73' },
+          font: { family: 'Plus Jakarta Sans, sans-serif', size: 10, color: '#6E6E73' },
           hoverlabel: { bgcolor: '#1D1D1F', bordercolor: '#1D1D1F', font: { color: '#FFFFFF', size: 11 } },
           xaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? '#ECECEF' : 'rgba(0,0,0,0)', zerolinecolor: '#D2D2D7', tickfont: { size: 9 }, ...(horizontal ? metricAxis : {}) },
           yaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? 'rgba(0,0,0,0)' : '#ECECEF', zerolinecolor: '#D2D2D7', tickfont: { size: 9 }, ...(!horizontal && !['histogram', 'heatmap', 'pie', 'donut', 'waterfall'].includes(chart.chart_type) ? metricAxis : {}) },
@@ -67,4 +67,3 @@ function buildMetricAxis(values, hint) {
   const ticks = minimum < 0 ? [minimum, 0, maximum] : [0, maximum * 0.25, maximum * 0.5, maximum * 0.75, maximum];
   return { tickmode: 'array', tickvals: ticks, ticktext: ticks.map((value) => formatMetric(value, hint)) };
 }
-
