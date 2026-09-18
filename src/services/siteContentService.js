@@ -1,0 +1,49 @@
+import { api } from './api';
+
+export const siteContentService = {
+  async getLanding() {
+    const { data } = await api.get('/site-content/landing');
+    return data;
+  },
+  async getAdminLanding() {
+    const { data } = await api.get('/admin/site-content/landing');
+    return data;
+  },
+  async updateLanding(content) {
+    const { data } = await api.put('/admin/site-content/landing', { content });
+    return data;
+  },
+  async uploadImage(file) {
+    const form = new FormData();
+    form.append('image', file);
+    const { data } = await api.post('/admin/site-content/images', form);
+    return data;
+  },
+  async listBlogs() {
+    const { data } = await api.get('/blogs');
+    return data;
+  },
+  async getBlog(slug) {
+    const { data } = await api.get(`/blogs/${slug}`);
+    return data;
+  },
+  async listAdminBlogs() {
+    const { data } = await api.get('/admin/blogs');
+    return data;
+  },
+  async getAdminBlog(slug) {
+    const { data } = await api.get(`/admin/blogs/${slug}`);
+    return data;
+  },
+  async createBlog(payload) {
+    const { data } = await api.post('/admin/blogs', payload);
+    return data;
+  },
+  async updateBlog(slug, payload) {
+    const { data } = await api.put(`/admin/blogs/${slug}`, payload);
+    return data;
+  },
+  async deleteBlog(slug) {
+    await api.delete(`/admin/blogs/${slug}`);
+  },
+};
