@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BrandLogo } from '../components/common/BrandLogo';
@@ -10,14 +10,14 @@ const steps = [
 ];
 
 const capabilities = [
-  ['Your question, in your words', 'Ask about revenue, growth, customers, products, or regional performance without writing SQL or formulas.'],
+  ['Your question, in your words', 'Ask about revenue, growth, customers, products, or regional performance using everyday business language.'],
   ['Findings with visual context', 'See each result beside the chart that supports it, so the answer is easier to understand and explain.'],
   ['Recommendations you can act on', 'Turn patterns into practical next steps while keeping the final business decision in your hands.'],
   ['A report ready to share', 'Preview and download a polished PDF for your team, client, or next business review.'],
 ];
 
 const faqs = [
-  ['Do I need to know how to code?', 'No. Ask questions using normal business language. Tatparya handles the analysis workflow and presents the answer with supporting evidence.'],
+  ['How does Tatparya answer questions?', 'Tatparya interprets your business question, performs the relevant analysis, and presents the answer with supporting evidence.'],
   ['Which files can I upload?', 'Tatparya supports CSV, Excel, JSON, and Parquet files. Files with clear column names and consistent rows produce the best results.'],
   ['Can I ask follow-up questions?', 'Yes. Compare another group, investigate a change, or revisit an earlier result without starting over.'],
   ['Can I download the results?', 'Yes. Preview a report before downloading a PDF with the important metrics, findings, recommendations, and visuals.'],
@@ -30,51 +30,71 @@ const heading = 'm-0 text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] 
 export function LandingPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setShowBackToTop(window.scrollY > 560);
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   if (!isLoading && isAuthenticated) return <Navigate to="/dashboard" replace />;
 
   return <div className="landing-page min-h-screen overflow-x-hidden bg-[#FAFBFD] text-slate-900 selection:bg-slate-900 selection:text-white">
-    <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-[#FAFBFD]/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-12">
+    <header className="fixed left-1/2 top-3 z-40 w-[calc(100%-1.5rem)] max-w-7xl -translate-x-1/2 rounded-2xl border border-slate-200/90 bg-white/90 shadow-[0_10px_35px_-22px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:w-[calc(100%-2.5rem)]">
+      <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to="/" className="inline-flex" aria-label="Tatparya home"><BrandLogo className="h-10 w-auto max-w-[180px]" /></Link>
-        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 lg:flex" aria-label="Main navigation">
           <a className="hover:text-slate-950" href="#preview">Product preview</a><a className="hover:text-slate-950" href="#how-it-works">How it works</a><a className="hover:text-slate-950" href="#platform">Platform</a><a className="hover:text-slate-950" href="#faq">FAQs</a>
         </nav>
         <div className="flex items-center gap-5">
           <Link className="hidden text-sm font-medium text-slate-600 hover:text-slate-950 sm:block" to="/login">Log in</Link>
           <Link className="hidden rounded-full bg-slate-950 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800 sm:inline-flex sm:items-center sm:gap-2" to="/register">Get started <Arrow /></Link>
-          <button className="rounded-lg border border-slate-300 px-3 py-2 text-sm md:hidden" type="button" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close' : 'Menu'}</button>
+          <button className="relative grid h-10 w-10 place-items-center rounded-full border border-slate-300 bg-white text-slate-950 shadow-sm transition hover:bg-slate-50 lg:hidden" type="button" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="mobile-navigation" onClick={() => setMenuOpen((open) => !open)}>
+            <span className="relative block h-4 w-5" aria-hidden="true"><span className={`absolute left-0 top-0.5 h-0.5 w-5 rounded bg-current transition ${menuOpen ? 'translate-y-[6px] rotate-45' : ''}`} /><span className={`absolute left-0 top-[7px] h-0.5 w-5 rounded bg-current transition ${menuOpen ? 'scale-x-0 opacity-0' : ''}`} /><span className={`absolute bottom-0.5 left-0 h-0.5 w-5 rounded bg-current transition ${menuOpen ? '-translate-y-[6px] -rotate-45' : ''}`} /></span>
+          </button>
         </div>
       </div>
-      {menuOpen && <nav className="grid gap-4 border-t border-slate-200 bg-white px-6 py-5 text-sm md:hidden">{[['#preview', 'Product preview'], ['#how-it-works', 'How it works'], ['#platform', 'Platform'], ['#faq', 'FAQs']].map(([href, label]) => <a href={href} key={href} onClick={() => setMenuOpen(false)}>{label}</a>)}<Link to="/login">Log in</Link><Link to="/register">Create an account →</Link></nav>}
+      {menuOpen && <><button className="fixed inset-x-0 bottom-0 top-[76px] z-10 border-0 bg-slate-950/20 lg:hidden" type="button" aria-label="Close navigation" onClick={() => setMenuOpen(false)} /><nav id="mobile-navigation" className="absolute inset-x-0 top-[calc(100%+0.5rem)] z-20 grid overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 text-sm font-medium text-slate-700 shadow-2xl shadow-slate-900/15 lg:hidden" aria-label="Mobile navigation">{[['#preview', 'Product preview'], ['#how-it-works', 'How it works'], ['#platform', 'Platform'], ['#faq', 'FAQs']].map(([href, label]) => <a className="rounded-xl px-4 py-3 hover:bg-slate-100 hover:text-slate-950" href={href} key={href} onClick={() => setMenuOpen(false)}>{label}</a>)}<div className="my-1 border-t border-slate-200" /><Link className="rounded-xl px-4 py-3 hover:bg-slate-100" to="/login" onClick={() => setMenuOpen(false)}>Log in</Link><Link className="m-1 inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-white" to="/register" onClick={() => setMenuOpen(false)}>Create an account <span className="ml-2">→</span></Link></nav></>}
     </header>
 
-    <main>
-      <section className="mx-auto max-w-7xl px-6 pb-24 pt-20 text-center lg:px-12 lg:pb-28 lg:pt-28">
+    <main className="pt-16">
+      <section className="mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl items-center px-4 py-14 text-center sm:px-6 sm:py-16 lg:px-12 lg:py-20">
         <div className="mx-auto flex max-w-4xl flex-col items-center">
-          <h1 className="m-0 text-5xl font-extrabold leading-[1.06] tracking-[-0.055em] text-slate-950 sm:text-6xl lg:text-7xl">Less spreadsheet.<br /><span className="text-slate-600">More perspective.</span></h1>
-          <p className="mb-0 mt-7 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">Ask a question about your business data and receive clear findings, useful visuals, and practical recommendations—without writing code.</p>
-          <div className="mt-9 flex flex-wrap justify-center gap-4"><Link className={primary} to="/register">Explore your data <Arrow /></Link><a className="inline-flex min-h-12 items-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="#preview">See the product ↓</a></div>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-3 text-xs font-medium text-slate-400"><span>No coding required</span><span>•</span>{['CSV', 'XLSX', 'JSON', 'PARQUET'].map((item) => <span className="rounded bg-slate-100 px-2 py-1 font-mono text-slate-500" key={item}>{item}</span>)}</div>
+          <h1 className="m-0 text-[35px] font-extrabold leading-[1.05] tracking-[-0.05em] text-slate-950 min-[375px]:text-[40px] sm:text-6xl lg:text-7xl">Turn business data<br /><span className="text-slate-500">into decisions. Just ask.</span></h1>
+          <HeroProcessGraphic />
+          <div className="mt-8 flex flex-wrap justify-center gap-4"><Link className={primary} to="/register">Analyze your data <Arrow /></Link><a className="inline-flex min-h-12 items-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 hover:bg-slate-50" href="#preview">See how it works ↓</a></div>
         </div>
       </section>
 
       <section id="how-it-works" className="scroll-mt-20 bg-[#0E1726] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
-          <div className="grid items-end gap-8 border-b border-slate-700/60 pb-16 lg:grid-cols-12"><h2 className={`${heading} lg:col-span-7`}>The question is yours.<br /><span className="text-slate-400">The heavy lifting is ours.</span></h2><p className="m-0 text-base leading-7 text-slate-400 lg:col-span-5">Tatparya combines reliable calculations, clear explanations, and visual evidence so you can spend less time preparing data and more time deciding what comes next.</p></div>
-          <div className="grid gap-12 pt-16 md:grid-cols-3 lg:gap-16">{[
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-12 lg:py-28">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+            <div className="min-w-0 lg:col-span-7"><h2 className={heading}>The question is yours.<br /><span className="text-slate-400">The heavy lifting is ours.</span></h2></div>
+            <div className="min-w-0 rounded-2xl border border-slate-700/70 bg-[#121E31] p-6 lg:col-span-5 lg:p-7"><p className="m-0 text-base leading-7 text-slate-300">Tatparya combines reliable calculations, clear explanations, and visual evidence so you can spend less time preparing data and more time deciding what comes next.</p><div className="mt-6 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300"><span className="rounded-full bg-blue-500/15 px-3 py-1.5 text-blue-300">Question</span><span className="text-slate-600">→</span><span className="rounded-full bg-blue-500/15 px-3 py-1.5 text-blue-300">Analysis</span><span className="text-slate-600">→</span><span className="rounded-full bg-blue-500/15 px-3 py-1.5 text-blue-300">Decision</span></div></div>
+          </div>
+          <div className="mt-16 grid overflow-hidden rounded-2xl border border-slate-700/70 bg-[#121E31] md:grid-cols-3">{[
             ['Understand performance', 'Compare products, regions, and customers to see what contributes most to the business.'],
             ['Investigate the change', 'Explore trends over time and ask follow-up questions when something needs a closer look.'],
             ['Share a clear answer', 'Keep findings, recommendations, and charts together in one report your team can review.'],
-          ].map(([title, text], index) => <article className="space-y-4" key={title}><span className="block border-b border-slate-700/60 pb-2 font-mono text-xs font-bold tracking-widest text-slate-400">0{index + 1}</span><h3 className="m-0 text-xl font-bold">{title}</h3><p className="m-0 text-sm leading-7 text-slate-400">{text}</p></article>)}</div>
+          ].map(([title, text], index) => <article className="group relative border-b border-slate-700/70 p-6 last:border-b-0 md:min-h-64 md:border-b-0 md:border-r md:p-7 md:last:border-r-0 lg:p-9" key={title}><span className="font-mono text-xs font-bold tracking-widest text-blue-400">0{index + 1}</span><div className="mt-9 md:mt-16"><h3 className="m-0 text-lg font-bold tracking-[-0.02em] sm:text-xl">{title}</h3><p className="mb-0 mt-3 text-sm leading-6 text-slate-400 md:leading-7">{text}</p></div><span className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-blue-500 transition-transform duration-300 group-hover:scale-x-100" /></article>)}</div>
         </div>
       </section>
 
       <ProductWalkthrough />
 
       <section id="platform" className="scroll-mt-20 bg-[#070D18] text-white">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12">
-          <div className="h-fit lg:sticky lg:top-32 lg:col-span-5"><h2 className={heading}>Useful answers.<br />Room to go deeper.</h2><p className="mb-0 mt-6 max-w-md text-base leading-7 text-slate-400">A good analysis should start a better conversation. Follow a result, compare another group, or take the findings into your next review.</p><Link className="mt-8 inline-flex items-center gap-2 border-b border-slate-600 pb-1 text-sm font-semibold hover:border-blue-400 hover:text-blue-400" to="/register">Start your first analysis <Arrow /></Link></div>
-          <div className="grid gap-6 lg:col-span-7">{capabilities.map(([title, text], index) => <article className="rounded-2xl border border-slate-800 bg-slate-900/80 p-8 hover:border-slate-700" key={title}><span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-500/10 text-sm font-bold text-blue-400">0{index + 1}</span><h3 className="mb-0 mt-5 text-xl font-bold">{title}</h3><p className="mb-0 mt-3 text-sm leading-7 text-slate-400">{text}</p></article>)}</div>
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12 lg:py-28">
+          <div className="h-fit lg:sticky lg:top-32 lg:col-span-4"><h2 className={heading}>Useful answers.<br /><span className="text-slate-400">Room to go deeper.</span></h2><p className="mb-0 mt-6 max-w-sm text-base leading-7 text-slate-400">A good analysis should start a better conversation. Follow a result, compare another group, or take the findings into your next review.</p><Link className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100" to="/register">Start your first analysis <Arrow /></Link></div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:col-span-8">{capabilities.map(([title, text], index) => <article className={`group relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0E1726] p-7 transition hover:-translate-y-1 hover:border-slate-700 ${index === 0 || index === 3 ? 'sm:col-span-2' : ''}`} key={title}><div className="flex items-start justify-between gap-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-sm font-bold text-blue-400">0{index + 1}</span><CapabilityIcon index={index} /></div><h3 className="mb-0 mt-8 text-xl font-bold tracking-[-0.02em]">{title}</h3><p className="mb-0 mt-3 max-w-xl text-sm leading-7 text-slate-400">{text}</p><span className="absolute bottom-0 left-0 h-0.5 w-full origin-left scale-x-0 bg-blue-500 transition-transform duration-300 group-hover:scale-x-100" /></article>)}</div>
         </div>
       </section>
 
@@ -89,6 +109,7 @@ export function LandingPage() {
     </main>
 
     <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-6 py-10 text-sm text-slate-500 sm:flex-row sm:items-center lg:px-12"><Link className="inline-flex" to="/" aria-label="Tatparya home"><BrandLogo className="h-9 w-auto max-w-[160px]" /></Link><div className="flex flex-wrap gap-6"><a href="#preview">Product preview</a><Link to="/login">Log in</Link><span>© {new Date().getFullYear()} Tatparya</span></div></div></footer>
+    <button className={`fixed bottom-5 right-5 z-30 grid h-11 w-11 place-items-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg shadow-slate-900/15 transition duration-200 hover:-translate-y-1 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${showBackToTop ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} type="button" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6" /></svg></button>
   </div>;
 }
 
@@ -96,16 +117,58 @@ function ProductWalkthrough() {
   const [active, setActive] = useState(0);
   const dialog = useRef(null);
   const stage = steps[active];
-  return <section id="preview" className="scroll-mt-20 border-b border-slate-200 bg-white"><div className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
-    <div className="max-w-3xl"><h2 className={`${heading} text-slate-950`}>One file.<br />A whole new perspective.</h2><p className="mb-0 mt-5 text-lg leading-8 text-slate-600">A connected workspace for your data, questions, and decisions. See how Tatparya moves from upload to a shareable answer.</p></div>
-    <div className="mt-16 grid items-start gap-10 lg:grid-cols-12">
-      <div className="grid gap-3 lg:col-span-4">{steps.map((item, index) => <button type="button" key={item.title} aria-pressed={active === index} onClick={() => setActive(index)} className={`rounded-2xl border p-5 text-left transition ${active === index ? 'border-slate-800 bg-slate-900 text-white shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'}`}><span className="font-mono text-xs text-slate-400">0{index + 1}</span><span className={`mt-1 block text-base font-bold ${active === index ? 'text-white' : 'text-slate-900'}`}>{item.title}</span><span className={`mt-2 block text-xs leading-6 ${active === index ? 'text-slate-300' : 'text-slate-500'}`}>{item.description}</span></button>)}</div>
-      <div className="min-w-0 lg:col-span-8"><div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/70"><div className="flex h-10 items-center justify-between border-b border-slate-200 bg-slate-100/90 px-4"><div className="flex items-center gap-2"><i className="h-3 w-3 rounded-full bg-slate-300" /><i className="h-3 w-3 rounded-full bg-slate-300" /><i className="h-3 w-3 rounded-full bg-slate-300" /><span className="ml-3 hidden font-mono text-[10px] text-slate-500 sm:inline">Tatparya workspace</span></div><span className="font-mono text-[10px] text-slate-400">Product preview</span></div><button type="button" className="block w-full cursor-zoom-in border-0 bg-white p-0" onClick={() => dialog.current?.showModal()}><img key={stage.image} className="block h-auto w-full animate-[preview-reveal_300ms_ease-out]" src={stage.image} alt={stage.alt} width="1847" height="1015" /></button></div><div className="mt-4 flex justify-between text-xs text-slate-400"><span>Inside Tatparya · Real product screen</span><button type="button" className="border-0 bg-transparent p-0 font-medium text-slate-600" onClick={() => dialog.current?.showModal()}>View full screen ↗</button></div></div>
+  const selectPrevious = () => setActive((current) => (current + steps.length - 1) % steps.length);
+  const selectNext = () => setActive((current) => (current + 1) % steps.length);
+
+  return <section id="preview" className="scroll-mt-24 border-b border-slate-200 bg-[#F4F7FB]"><div className="mx-auto max-w-[1500px] px-6 py-24 lg:px-12 lg:py-28">
+    <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-12 lg:items-end"><h2 className={`${heading} text-slate-950 lg:col-span-7`}>From a raw file.<br /><span className="text-slate-500">To a decision you can share.</span></h2><p className="m-0 max-w-xl text-lg leading-8 text-slate-600 lg:col-span-5">Keep your dataset, questions, calculations, visuals, and recommendations together in one connected workspace.</p></div>
+
+    <div className="mt-14">
+      <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" role="tablist" aria-label="Product workflow">
+        {steps.map((item, index) => <button type="button" role="tab" key={item.title} aria-selected={active === index} aria-controls="product-preview-panel" onClick={() => setActive(index)} className={`group min-w-[82vw] snap-center rounded-2xl border p-5 text-left transition sm:min-w-[58vw] md:min-w-0 lg:p-6 ${active === index ? 'border-[#172033] bg-[#0E1726] text-white shadow-lg shadow-slate-900/10' : 'border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:-translate-y-0.5'}`}><span className="flex items-center gap-3"><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-mono text-[11px] font-bold ${active === index ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500'}`}>0{index + 1}</span><span className="text-sm font-bold sm:text-base">{item.title}</span></span><span className={`mt-4 block text-xs leading-6 sm:pl-12 ${active === index ? 'text-slate-300' : 'text-slate-500'}`}>{item.description}</span></button>)}
+      </div>
+
+      <div id="product-preview-panel" role="tabpanel" className="mt-5 rounded-[30px] bg-[#0E1726] p-3 shadow-[0_35px_90px_-45px_rgba(15,23,42,0.65)] sm:p-5 lg:p-7">
+        <div className="flex items-center justify-between gap-4 px-1 pb-3 sm:px-2 sm:pb-4"><div className="flex min-w-0 items-center gap-2.5"><BrandLogo variant="symbol" className="h-7 w-7 shrink-0" alt="" /><div className="min-w-0"><span className="block truncate text-xs font-semibold text-white">{stage.title}</span><span className="hidden text-[10px] text-slate-400 sm:block">Tatparya product workspace</span></div></div><div className="flex shrink-0 items-center gap-1.5"><button className="grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-800 text-white transition hover:border-slate-600 hover:bg-slate-700" type="button" onClick={selectPrevious} aria-label="Previous product step">←</button><span className="min-w-12 text-center font-mono text-[10px] text-slate-400">{active + 1} / {steps.length}</span><button className="grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-800 text-white transition hover:border-slate-600 hover:bg-slate-700" type="button" onClick={selectNext} aria-label="Next product step">→</button></div></div>
+        <div className="overflow-hidden rounded-[20px] border border-white/10 bg-white shadow-2xl shadow-black/30"><button type="button" className="block w-full cursor-zoom-in border-0 bg-white p-0" onClick={() => dialog.current?.showModal()} aria-label={`Open ${stage.title} preview full screen`}><img key={stage.image} className="block h-auto w-full animate-[preview-reveal_300ms_ease-out] object-contain" src={stage.image} alt={stage.alt} width="1847" height="1015" /></button></div>
+      </div>
+
+      <div className="flex flex-col gap-3 px-1 pt-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between"><span><strong className="font-semibold text-slate-800">{stage.title}</strong> Select any step to explore the workflow.</span><button type="button" className="inline-flex items-center gap-2 self-start rounded-lg border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50" onClick={() => dialog.current?.showModal()}>Open full preview <span aria-hidden="true">↗</span></button></div>
     </div>
+
     <dialog ref={dialog} className="fixed inset-0 m-auto max-h-[94dvh] w-[96vw] max-w-[1600px] overflow-auto rounded-2xl border border-slate-700 bg-slate-950 p-3 text-white backdrop:bg-slate-950/85"><div className="mb-3 flex items-center justify-between"><p className="m-0 text-sm font-semibold">{stage.title}</p><button type="button" className="rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm" onClick={() => dialog.current?.close()}>Close ×</button></div><img className="block h-auto w-full rounded-xl" src={stage.image} alt={stage.alt} width="1847" height="1015" /></dialog>
   </div></section>;
 }
 
 function Arrow() {
   return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+}
+
+function HeroProcessGraphic() {
+  const items = [
+    { label: 'Upload', detail: 'Your business file', icon: <><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" /><path d="M5 15v4h14v-4" /></> },
+    { label: 'Ask', detail: 'In plain language', icon: <><path d="M4 5h16v11H9l-5 4z" /><path d="M8 9h8M8 12h5" /></> },
+    { label: 'Decide', detail: 'With clear evidence', icon: <><path d="M5 19V9m5 10V5m5 14v-7m5 7V3" /><path d="M3 19h19" /></> },
+  ];
+  return <div className="mt-9 w-full max-w-2xl rounded-2xl border border-slate-200 bg-white px-4 py-5 shadow-[0_22px_55px_-38px_rgba(15,23,42,0.5)] sm:px-7 sm:py-6" role="img" aria-label="Tatparya process: upload a business file, ask a question, and decide using clear evidence">
+    <div className="relative">
+      <span className="absolute left-[16.67%] right-[16.67%] top-6 h-px bg-slate-200" aria-hidden="true" />
+      <span className="hero-flow-beam absolute left-[16.67%] top-6 h-px w-[66.66%] origin-left bg-blue-500" aria-hidden="true" />
+      <span className="hero-flow-dot absolute top-[21px] h-[7px] w-[7px] rounded-full bg-blue-500 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]" aria-hidden="true" />
+      <div className="relative grid grid-cols-3 gap-2">
+        {items.map((item, index) => <div className="flex min-w-0 flex-col items-center text-center" key={item.label}><span className={`hero-flow-node hero-flow-delay-${index} grid h-12 w-12 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm`}><svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{item.icon}</svg></span><span className="mt-3 text-xs font-bold text-slate-900 sm:text-sm">{item.label}</span><span className="mt-1 truncate text-[9px] text-slate-400 sm:text-[10px]">{item.detail}</span></div>)}
+      </div>
+    </div>
+    <div className="mt-5 border-t border-slate-100 pt-3 text-center text-[10px] font-medium text-slate-400">From raw data to a decision-ready answer</div>
+  </div>;
+}
+
+function CapabilityIcon({ index }) {
+  const paths = [
+    <><path d="M5 6h14M5 12h9M5 18h6" /><path d="m16 15 3 3-3 3" /></>,
+    <><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" /><path d="M2 19h20" /></>,
+    <><path d="m4 13 4 4L20 5" /><path d="M20 12v7H4V5h11" /></>,
+    <><path d="M6 2h9l5 5v15H6z" /><path d="M14 2v6h6M9 13h8M9 17h6" /></>,
+  ];
+  return <svg className="h-8 w-8 text-slate-600 transition group-hover:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[index]}</svg>;
 }
