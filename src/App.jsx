@@ -14,6 +14,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { BlogListPage } from './pages/BlogListPage';
 import { BlogDetailPage } from './pages/BlogDetailPage';
 import { AdminBlogsPage } from './pages/AdminBlogsPage';
+import { AdminModelPage } from './pages/AdminModelPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export default function App() {
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/admin/landing-content" element={<LandingContentPage />} />
             <Route path="/admin/landing-content/:section" element={<LandingContentPage />} />
             <Route path="/admin/blogs" element={<AdminBlogsPage />} />
+            <Route path="/admin/ai-model" element={<AdminModelPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

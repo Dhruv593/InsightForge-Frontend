@@ -1,6 +1,14 @@
 // Presentation only: preserve saved evidence and numbers, and explain caveats plainly.
+function readableReportDates(value) {
+  return value.replace(/\b(\d{4}-\d{2}-\d{2})T00:00:00(?:\.0+)?(?:Z|\+00:00)?(?![\d:+-]|\.\d)/g, (timestamp, day) => {
+    const date = new Date(`${day}T00:00:00Z`);
+    if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== day) return timestamp;
+    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
+  });
+}
+
 export function plainLanguage(value) {
-  return String(value || '')
+  return readableReportDates(String(value || ''))
     .replace(/This report was assembled deterministically from saved evidence and accepted claims\.?/gi, '')
     .replace(/The language-model interpretation was unavailable[^.]*\.?/gi, 'Some explanations could not be prepared. The available calculated results are shown.')
     .replace(/Column ['"]([^'"]+)['"] contains values outside the [^\n]*?(?:IQR bounds|interquartile range bounds)\.?/gi, '$1 includes unusually high or low values compared with most records.')
@@ -30,6 +38,15 @@ export function reportBullets(items = []) {
   return [...new Set(bullets)];
 }
 
+export function reportRecommendations(items = []) {
+  // One saved array item is one action with its reason and follow-up check.
+  const recommendations = items.map((item) => plainLanguage(item)
+    .replace(/^\s*(?:[-•]|\d+[.)])\s+/, '')
+    .replace(/\s+/g, ' ')
+    .trim()).filter(Boolean);
+  return [...new Set(recommendations)];
+}
+
 export function presentReport(report) {
   return {
     ...report,
@@ -38,6 +55,6 @@ export function presentReport(report) {
     statistical_findings: reportBullets(report.statistical_findings),
     data_notes: reportBullets(report.data_notes),
     limitations: reportBullets(report.limitations),
-    recommendations: reportBullets(report.recommendations),
+    recommendations: reportRecommendations(report.recommendations),
   };
 }

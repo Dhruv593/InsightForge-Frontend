@@ -4,7 +4,6 @@ import { formatCategory, formatMetric, getChartSeries, humanizeColumn } from './
 export function dashboardReport(raw, charts = []) {
   const report = presentReport(raw);
   const visualFindings = [];
-  const suggestions = [];
   for (const chart of charts) {
     if (!['bar', 'horizontal_bar', 'donut', 'pie', 'line'].includes(chart.chart_type)) continue;
     const series = getChartSeries(chart);
@@ -18,9 +17,6 @@ export function dashboardReport(raw, charts = []) {
     const total = points.reduce((sum, item) => sum + item.value, 0);
     const share = total > 0 ? `, representing ${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format((top.value / total) * 100)}% of the displayed total` : '';
     visualFindings.push(`${formatCategory(top.label)} leads ${humanizeColumn(chart.x_column || 'this comparison')} at ${formatMetric(top.value, hint)}${share}; ${formatCategory(bottom.label)} is lowest at ${formatMetric(bottom.value, hint)}.`);
-    if (/revenue|sales/i.test(measure)) suggestions.push(chart.chart_type === 'line'
-      ? `Review the orders and campaigns behind ${formatCategory(top.label)} before treating its higher revenue as a repeatable trend.`
-      : `Compare pricing, order volumes, and customer mix in ${formatCategory(top.label)} and ${formatCategory(bottom.label)} before choosing where to invest.`);
   }
   const isRaw = (text) => (text.match(/;/g) || []).length >= 2 || /first \d+ result rows|\d{4}-\d{2}-\d{2}T\d{2}:/.test(text);
   const caveat = (text) => /unusual|outlier|missing|blank entr|causat|causal|does not prove|do not prove|could not|cannot|skew|extreme|confidence interval|sample size|not included|imput|statistical significance|deterministic/i.test(text);
@@ -31,7 +27,7 @@ export function dashboardReport(raw, charts = []) {
     : [];
   return { ...report,
     key_findings: [...new Set([...visualFindings, ...narrative, ...summaryFindings])].slice(0, 8),
-    recommendations: report.recommendations.length ? report.recommendations.slice(0, 4) : [...new Set(suggestions)].slice(0, 3),
+    recommendations: report.recommendations.slice(0, 4),
     context: [...new Set([...report.data_notes, ...report.limitations, ...rawFindings.filter(caveat)])],
   };
 }

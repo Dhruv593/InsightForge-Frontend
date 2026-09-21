@@ -12,7 +12,7 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
       <section className="rounded-xl border border-[#E4E2F4] bg-[#F7F6FF] px-4 py-3" aria-label="Active question">
         <p className="m-0 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[#30303A]">{question.query}</p>
       </section>
-      {running ? <RunningState progress={progress} onCancel={() => onCancel(run.id)} /> : result?.report ? <AnalysisResult report={result.report} charts={result.charts || []} /> : savedAnswer ? <p className="whitespace-pre-wrap text-sm leading-6 text-[#515154]">{savedAnswer}</p> : ['failed', 'cancelled'].includes(run.status) ? <FailedState message={run.error_message} cancelled={run.status === 'cancelled'} onRetry={() => onRetry(run.id)} onAlternate={() => onRetry(run.id, run.llm_provider === 'gemini' ? 'groq' : 'gemini')} onEdit={() => onEdit(question.query)} /> : <ResultUnavailable />}
+      {running ? <RunningState progress={progress} onCancel={() => onCancel(run.id)} /> : result?.report ? <AnalysisResult report={result.report} charts={result.charts || []} /> : savedAnswer ? <p className="whitespace-pre-wrap text-sm leading-6 text-[#515154]">{savedAnswer}</p> : ['failed', 'cancelled'].includes(run.status) ? <FailedState message={run.error_message} cancelled={run.status === 'cancelled'} onRetry={() => onRetry(run.id)} onEdit={() => onEdit(question.query)} /> : <ResultUnavailable />}
     </div>
   );
 }
@@ -29,10 +29,10 @@ function RunningState({ progress, onCancel }) {
   );
 }
 
-function FailedState({ message, cancelled, onRetry, onAlternate, onEdit }) {
+function FailedState({ message, cancelled, onRetry, onEdit }) {
   return (
     <section className="flex min-h-72 items-center justify-center">
-      <div className="max-w-md text-center"><div className="mx-auto mb-3 grid h-9 w-9 place-items-center rounded-full bg-red-50 text-sm font-semibold text-red-600">!</div><h2 className="m-0 text-base font-semibold text-[#1D1D1F]">{cancelled ? 'Analysis cancelled.' : 'Analysis couldn’t be completed.'}</h2><p className="mb-4 mt-2 text-sm leading-6 text-[#6E6E73]">{message || 'Your question was saved and can be tried again.'}</p><div className="flex flex-wrap justify-center gap-2"><button className="rounded-lg bg-brand-600 px-3 py-2 text-xs font-medium text-white hover:bg-brand-700" type="button" onClick={onRetry}>Retry analysis</button><button className="rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-xs font-medium text-[#3A3A3C] hover:bg-[#F5F5F7]" type="button" onClick={onAlternate}>Try another provider</button><button className="rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-xs font-medium text-[#3A3A3C] hover:bg-[#F5F5F7]" type="button" onClick={onEdit}>Edit question</button></div></div>
+      <div className="max-w-md text-center"><div className="mx-auto mb-3 grid h-9 w-9 place-items-center rounded-full bg-red-50 text-sm font-semibold text-red-600">!</div><h2 className="m-0 text-base font-semibold text-[#1D1D1F]">{cancelled ? 'Analysis cancelled.' : 'Analysis couldn’t be completed.'}</h2><p className="mb-4 mt-2 text-sm leading-6 text-[#6E6E73]">{message || 'Your question was saved and can be tried again.'}</p><div className="flex flex-wrap justify-center gap-2"><button className="rounded-lg bg-brand-600 px-3 py-2 text-xs font-medium text-white hover:bg-brand-700" type="button" onClick={onRetry}>Retry analysis</button><button className="rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-xs font-medium text-[#3A3A3C] hover:bg-[#F5F5F7]" type="button" onClick={onEdit}>Edit question</button></div></div>
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { api } from './api';
 export const analysisService = {
   createQuery: (conversationId, payload) => api.post(`/conversations/${conversationId}/query`, payload).then(({ data }) => data),
   execute: (analysisRunId) => api.post(`/analysis-runs/${analysisRunId}/execute`).then(({ data }) => data),
-  retry: (analysisRunId, llmProvider) => api.post(`/analysis-runs/${analysisRunId}/retry`, { llm_provider: llmProvider || null }).then(({ data }) => data),
+  retry: (analysisRunId) => api.post(`/analysis-runs/${analysisRunId}/retry`, {}).then(({ data }) => data),
   cancel: (analysisRunId) => api.post(`/analysis-runs/${analysisRunId}/cancel`).then(({ data }) => data),
   queueStatus: (analysisRunId) => api.get(`/analysis-runs/${analysisRunId}/queue`).then(({ data }) => data),
   activeQueue: () => api.get('/analysis-runs/queue/active').then(({ data }) => data),

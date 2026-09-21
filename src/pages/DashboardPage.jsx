@@ -275,10 +275,10 @@ export function DashboardPage() {
     }
   }
 
-  async function retryAnalysis(runId, provider) {
+  async function retryAnalysis(runId) {
     setQuerySubmitting(true);
     try {
-      const result = await analysisService.retry(runId, provider);
+      const result = await analysisService.retry(runId);
       setMessages((current) => [...current, result.message]);
       setRuns((current) => [result.analysis_run, ...current]);
       setActiveQueue((current) => [...current, result.analysis_run]);
@@ -302,7 +302,7 @@ export function DashboardPage() {
   }
 
   function openCreateConversation() {
-    setModalInput('Revenue Analysis');
+    setModalInput('');
     setModalDatasetId(selectedDatasetId || datasets[0]?.id || '');
     setModal({ type: 'create', title: 'Start a new analysis' });
   }
