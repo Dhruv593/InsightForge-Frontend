@@ -56,6 +56,13 @@
 }
 
 @layer components {
+  .dashboard-shell[data-onboarding-step='upload'] [data-tour='upload-dataset'],
+  .dashboard-shell[data-onboarding-step='profile'] [data-tour='profile-dataset'],
+  .dashboard-shell[data-onboarding-step='analysis'] [data-tour='new-analysis'] {
+    position: relative;
+    z-index: 30;
+    box-shadow: 0 0 0 3px #818cf8, 0 0 0 7px rgb(99 102 241 / 16%);
+  }
   .voice-recording-bars { display: flex; align-items: center; justify-content: center; gap: 2px; width: 20px; height: 20px; }
   .voice-recording-bars > span { width: 2px; height: 12px; border-radius: 2px; background: currentColor; animation: voice-recording 900ms ease-in-out infinite alternate; }
   .voice-recording-bars > span:nth-child(2) { height: 18px; animation-delay: -300ms; }

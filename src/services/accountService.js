@@ -2,6 +2,7 @@ import { api } from './api';
 
 export const accountService = {
   updateProfile: (payload) => api.patch('/account/profile', payload).then(({ data }) => data),
+  completeOnboarding: () => api.post('/account/onboarding/complete').then(({ data }) => data),
   changePassword: (payload) => api.post('/account/password', payload).then(({ data }) => data),
   sessions: () => api.get('/account/sessions').then(({ data }) => data),
   revokeSession: (sessionId) => api.delete(`/account/sessions/${sessionId}`).then(({ data }) => data),

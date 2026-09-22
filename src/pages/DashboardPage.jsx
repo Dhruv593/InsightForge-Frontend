@@ -12,10 +12,14 @@ import { conversationService } from '../services/conversationService';
 import { datasetService } from '../services/datasetService';
 import { profileService } from '../services/profileService';
 import { usePersistentState } from '../hooks/usePersistentState';
+import { useAuth } from '../context/AuthContext';
+import { accountService } from '../services/accountService';
+import { OnboardingTour, onboardingStepFor } from '../components/onboarding/OnboardingTour';
 
 export function DashboardPage() {
   const { datasetId: routeDatasetId, conversationId } = useParams();
   const navigate = useNavigate();
+  const { user, refreshUser } = useAuth();
   const emptyUploadRef = useRef(null);
   const [datasets, setDatasets] = useState([]);
   const [datasetsLoading, setDatasetsLoading] = useState(true);
@@ -43,10 +47,24 @@ export function DashboardPage() {
   const [modalInput, setModalInput] = useState('');
   const [modalDatasetId, setModalDatasetId] = useState('');
   const [modalBusy, setModalBusy] = useState(false);
+  const [tourDismissed, setTourDismissed] = useState(false);
 
   const selectedDatasetId = routeDatasetId ?? activeConversation?.dataset_id ?? null;
   const selectedDataset = datasets.find((item) => item.id === selectedDatasetId) ?? null;
   const profileComplete = profile?.profile_status === 'completed';
+  const onboardingActive = Boolean(user && !user.onboarding_completed_at && !tourDismissed);
+  const onboardingStep = onboardingStepFor({ datasets, datasetProfiles });
+
+  const finishOnboarding = useCallback(async () => {
+    setTourDismissed(true);
+    try {
+      await accountService.completeOnboarding();
+      await refreshUser();
+    } catch (error) {
+      setTourDismissed(false);
+      setPageError(getApiError(error, 'The product tour could not be dismissed.').message);
+    }
+  }, [refreshUser, setPageError]);
 
   const loadDatasetProfiles = useCallback(async (items) => {
     const entries = await Promise.all(items.map(async (dataset) => {
@@ -89,6 +107,14 @@ export function DashboardPage() {
   }, [setPageError]);
 
   useEffect(() => { loadDatasets(); loadConversations(); }, [loadDatasets, loadConversations]);
+
+  useEffect(() => {
+    if (!onboardingActive || datasetsLoading || conversationsLoading || !datasets.length) return;
+    if (!selectedDatasetId) {
+      navigate(`/dashboard/datasets/${datasets[0].id}`, { replace: true });
+      return;
+    }
+  }, [conversationsLoading, datasets, datasetsLoading, navigate, onboardingActive, selectedDatasetId]);
 
   useEffect(() => {
     let current = true;
@@ -322,6 +348,7 @@ export function DashboardPage() {
         success('Analysis created successfully.');
         setConversations((current) => [created, ...current]);
         navigate(`/dashboard/conversations/${created.id}`);
+        if (onboardingActive) await finishOnboarding();
       } else if (modal.type === 'rename') {
         const updated = await conversationService.rename(activeConversation.id, modalInput.trim());
         success('Analysis renamed successfully.');
@@ -353,7 +380,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-shell min-h-screen bg-[#F5F5F7]">
+    <div className="dashboard-shell min-h-screen bg-[#F5F5F7]" data-onboarding-step={onboardingActive && !modal ? onboardingStep : undefined}>
       <AppHeader onToggleSidebar={() => setSidebarOpen((value) => !value)} activeRuns={activeQueue} onSelectRun={(run) => navigate(`/dashboard/conversations/${run.conversation_id}?run=${run.id}`)} onCancelRun={(run) => cancelAnalysis(run.id)} />
       <div className="flex h-screen overflow-hidden pt-14">
         <Sidebar
@@ -377,7 +404,7 @@ export function DashboardPage() {
         {sidebarOpen && <button className="fixed inset-x-0 bottom-0 top-14 z-10 border-0 bg-black/25 lg:hidden" aria-label="Close sidebar" onClick={() => setSidebarOpen(false)} />}
         <main className={`h-full min-h-0 min-w-0 flex-1 ${conversationId && activeConversation ? 'overflow-hidden p-0' : 'overflow-x-hidden overflow-y-auto overscroll-contain p-4 pb-10 lg:p-8 lg:pb-12'}`}>
           {!selectedDatasetId ? (
-            <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col items-start justify-center"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Your workspace</p><h1 className="mb-3 text-4xl font-semibold tracking-[-0.04em] text-[#1D1D1F]">Start with a dataset.</h1><p className="mb-7 max-w-lg text-[15px] leading-7 text-[#6E6E73]">Upload a CSV, Excel, JSON, or Parquet file, then create an analysis from the sidebar.</p><button className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={() => emptyUploadRef.current?.click()} disabled={uploading}>{uploading ? 'Uploading…' : 'Upload Dataset'}</button></section>
+            <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col items-start justify-center"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Your workspace</p><h1 className="mb-3 text-4xl font-semibold tracking-[-0.04em] text-[#1D1D1F]">Start with a dataset.</h1><p className="mb-7 max-w-lg text-[15px] leading-7 text-[#6E6E73]">Upload a CSV, Excel, JSON, or Parquet file, then create an analysis from the sidebar.</p><button data-tour="upload-dataset" className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={() => emptyUploadRef.current?.click()} disabled={uploading}>{uploading ? 'Uploading…' : 'Upload Dataset'}</button></section>
           ) : conversationId && activeConversation ? (
             <ConversationWorkspace
               conversation={activeConversation}
@@ -398,7 +425,7 @@ export function DashboardPage() {
             />
           ) : (
             <section className="mx-auto max-w-5xl">
-              <header className="flex flex-col items-start justify-between gap-5 px-0 py-5 sm:flex-row sm:items-end sm:py-7"><div className="min-w-0"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Selected dataset</p><h1 className="mb-2 break-words text-2xl font-semibold tracking-[-0.03em] text-[#1D1D1F] sm:text-3xl">{selectedDataset?.original_file_name ?? 'Loading dataset…'}</h1><p className="m-0 text-xs text-[#6E6E73]">{selectedDataset ? `${selectedDataset.file_type.toUpperCase()} · ${formatBytes(selectedDataset.file_size)}` : ''}</p></div><button className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700" type="button" onClick={openCreateConversation}>New Analysis</button></header>
+              <header className="flex flex-col items-start justify-between gap-5 px-0 py-5 sm:flex-row sm:items-end sm:py-7"><div className="min-w-0"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Selected dataset</p><h1 className="mb-2 break-words text-2xl font-semibold tracking-[-0.03em] text-[#1D1D1F] sm:text-3xl">{selectedDataset?.original_file_name ?? 'Loading dataset…'}</h1><p className="m-0 text-xs text-[#6E6E73]">{selectedDataset ? `${selectedDataset.file_type.toUpperCase()} · ${formatBytes(selectedDataset.file_size)}` : ''}</p></div><button data-tour="new-analysis" className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700" type="button" onClick={openCreateConversation}>New Analysis</button></header>
               <DatasetProfile profile={profile} loading={profileLoading} profiling={profiling} onProfile={profileDataset} />
             </section>
           )}
@@ -408,6 +435,7 @@ export function DashboardPage() {
       {modal && <Modal title={modal.title} description={modal.type === 'create' ? 'Choose a name and dataset to begin.' : undefined} danger={modal.type.startsWith('delete')} confirmLabel={modal.type.startsWith('delete') ? 'Delete' : modal.type === 'create' ? 'Start Analysis' : modal.type === 'duplicate-query' ? 'Run again' : 'Save'} confirmDisabled={modal.type === 'create' && (!datasets.length || !modalDatasetId || !modalInput.trim())} busy={modalBusy} onClose={() => setModal(null)} onConfirm={confirmModal}>
         {modal.type === 'create' ? <NewAnalysisFields datasets={datasets} profiles={datasetProfiles} title={modalInput} datasetId={modalDatasetId} uploading={uploading} onTitleChange={setModalInput} onDatasetChange={setModalDatasetId} onUpload={() => emptyUploadRef.current?.click()} /> : modal.type === 'rename' ? <label className="grid gap-2 text-sm font-medium text-[#3A3A3C]">Analysis name<input className="min-h-11 rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-[#1D1D1F] focus:border-brand-500" value={modalInput} onChange={(event) => setModalInput(event.target.value)} maxLength={200} autoFocus /></label> : modal.type === 'duplicate-query' ? <div><p className="mt-0">This question has already been analyzed for the selected dataset.</p><button className="border-0 bg-transparent p-0 text-sm font-medium text-brand-600 hover:text-brand-700" type="button" onClick={() => { navigate(`/dashboard/conversations/${conversationId}?run=${modal.runId}`); setModal(null); }}>Open existing result</button></div> : <p className="m-0">{modal.type === 'delete-dataset' ? 'This also removes its profile and analyses. This action cannot be undone.' : 'Its messages and analysis runs will be removed. The dataset will remain.'}</p>}
       </Modal>}
+      {onboardingActive && !datasetsLoading && !conversationsLoading && <OnboardingTour step={onboardingStep} hidden={Boolean(modal)} onSkip={finishOnboarding} />}
     </div>
   );
 }

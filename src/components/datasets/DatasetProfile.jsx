@@ -5,7 +5,7 @@ export function DatasetProfile({ profile, loading, profiling, onProfile }) {
     return (
       <section className="grid items-center gap-5 rounded-xl border border-[#E5E5E8] bg-white p-7 sm:grid-cols-[1fr_auto]">
         <div><p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-700">{failed ? 'Profiling failed' : 'Not profiled'}</p><h2 className="mb-2 text-xl font-semibold tracking-tight text-slate-900">{failed ? 'The last profiling attempt failed.' : 'Profile this dataset before analysis.'}</h2><p className="m-0 text-sm leading-6 text-slate-500">Inspect its structure and data-quality signals before creating queries.</p></div>
-        <button className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={onProfile} disabled={profiling}>{profiling ? 'Profiling dataset…' : 'Profile dataset'}</button>
+        <button data-tour="profile-dataset" className="inline-flex min-h-10 items-center justify-center rounded-md bg-brand-600 px-4 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={onProfile} disabled={profiling}>{profiling ? 'Profiling dataset…' : 'Profile dataset'}</button>
       </section>
     );
   }
