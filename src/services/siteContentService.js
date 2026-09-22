@@ -13,6 +13,18 @@ export const siteContentService = {
     const { data } = await api.put('/admin/site-content/landing', { content });
     return data;
   },
+  async getPlans() {
+    const { data } = await api.get('/site-content/plans');
+    return data;
+  },
+  async getAdminPlans() {
+    const { data } = await api.get('/admin/site-content/plans');
+    return data;
+  },
+  async updatePlans(content) {
+    const { data } = await api.put('/admin/site-content/plans', { content });
+    return data;
+  },
   async uploadImage(file) {
     const form = new FormData();
     form.append('image', file);

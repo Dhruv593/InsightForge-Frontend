@@ -14,10 +14,14 @@ export function LandingPage() {
   const [searchParams] = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [navbarScrolled, setNavbarScrolled] = useState(false);
   const [content, setContent] = useState(defaultLandingContent);
 
   useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 560);
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 560);
+      setNavbarScrolled(window.scrollY > 24);
+    };
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') setMenuOpen(false);
     };
@@ -49,9 +53,9 @@ export function LandingPage() {
 
   return <div className="landing-page min-h-screen overflow-x-hidden bg-[#FAFBFD] text-slate-900 selection:bg-slate-900 selection:text-white">
     <Seo />
-    {content.navigation.enabled && <header className="fixed left-1/2 top-3 z-40 w-[calc(100%-1.5rem)] max-w-7xl -translate-x-1/2 rounded-2xl border border-slate-200/90 bg-white/90 shadow-[0_10px_35px_-22px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:w-[calc(100%-2.5rem)]">
-      <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="inline-flex" aria-label="Tatparya home"><BrandLogo className="h-10 w-auto max-w-[180px]" /></Link>
+    {content.navigation.enabled && <header className={`fixed left-1/2 top-3 z-40 w-[calc(100%-1.5rem)] max-w-7xl -translate-x-1/2 rounded-2xl border bg-white/90 backdrop-blur-xl transition-[box-shadow,border-color] duration-200 sm:w-[calc(100%-2.5rem)] ${navbarScrolled ? 'border-slate-300/90 shadow-[0_16px_40px_-20px_rgba(15,23,42,0.48)]' : 'border-slate-200/90 shadow-[0_10px_35px_-22px_rgba(15,23,42,0.45)]'}`}>
+      <div className={`mx-auto flex items-center justify-between px-4 transition-[height] duration-200 sm:px-6 lg:px-8 ${navbarScrolled ? 'h-14' : 'h-16'}`}>
+        <Link to="/" className="inline-flex" aria-label="Tatparya home"><BrandLogo className={`w-auto max-w-[180px] transition-[height] duration-200 ${navbarScrolled ? 'h-8' : 'h-10'}`} /></Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 lg:flex" aria-label="Main navigation">
           {navigationLinks.map((link) => <ContentLink className="hover:text-slate-950" link={link} key={link.href}>{link.label}</ContentLink>)}
         </nav>
@@ -76,7 +80,7 @@ export function LandingPage() {
       </section>}
 
       {content.how_it_works.enabled && <section id="how-it-works" className="scroll-mt-20 bg-[#0E1726] text-white">
-        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-12 lg:py-28">
+        <div className="mx-auto max-w-7xl px-6 py-16 sm:py-20 lg:px-12 lg:py-28">
           <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
             <div className="min-w-0 lg:col-span-7"><h2 className={heading}>{content.how_it_works.title}<br /><span className="text-slate-400">{content.how_it_works.accent}</span></h2></div>
             <div className="min-w-0 rounded-2xl border border-slate-700/70 bg-[#121E31] p-6 lg:col-span-5 lg:p-7"><p className="m-0 text-base leading-7 text-slate-300">{content.how_it_works.description}</p><div className="mt-6 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-slate-300">{content.how_it_works.flow_labels.map((label, index) => <span className="contents" key={label}><span className="rounded-full bg-blue-500/15 px-3 py-1.5 text-blue-300">{label}</span>{index < content.how_it_works.flow_labels.length - 1 && <span className="text-slate-600">→</span>}</span>)}</div></div>
@@ -88,20 +92,20 @@ export function LandingPage() {
       {content.preview.enabled && <ProductWalkthrough content={content.preview} />}
 
       {content.platform.enabled && <section id="platform" className="scroll-mt-20 bg-[#070D18] text-white">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12 lg:py-28">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-16 sm:py-20 lg:grid-cols-12 lg:px-12 lg:py-28">
           <div className="h-fit lg:sticky lg:top-32 lg:col-span-4"><h2 className={heading}>{content.platform.title}<br /><span className="text-slate-400">{content.platform.accent}</span></h2><p className="mb-0 mt-6 max-w-sm text-base leading-7 text-slate-400">{content.platform.description}</p><ContentLink className="mt-8 inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100" link={content.platform.action}>{content.platform.action.label} <Arrow /></ContentLink></div>
           <div className="grid gap-4 sm:grid-cols-2 lg:col-span-8">{content.platform.cards.map((card, index) => <article className={`group relative overflow-hidden rounded-2xl border border-slate-800 bg-[#0E1726] p-7 transition hover:-translate-y-1 hover:border-slate-700 ${index === 0 || index === 3 ? 'sm:col-span-2' : ''}`} key={card.title}><div className="flex items-start justify-between gap-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-sm font-bold text-blue-400">0{index + 1}</span><CapabilityIcon index={index} /></div><h3 className="mb-0 mt-8 text-xl font-bold tracking-[-0.02em]">{card.title}</h3><p className="mb-0 mt-3 max-w-xl text-sm leading-7 text-slate-400">{card.description}</p><span className="absolute bottom-0 left-0 h-0.5 w-full origin-left scale-x-0 bg-blue-500 transition-transform duration-300 group-hover:scale-x-100" /></article>)}</div>
         </div>
       </section>}
 
       {content.faq.enabled && <section id="faq" className="scroll-mt-20 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-24 lg:grid-cols-12 lg:px-12">
+        <div className="mx-auto grid max-w-7xl gap-14 px-6 py-16 sm:py-20 lg:grid-cols-12 lg:px-12 lg:py-24">
           <div className="lg:col-span-5"><h2 className={`${heading} text-slate-950`}>{content.faq.title}<br />{content.faq.accent}</h2><p className="mb-0 mt-5 max-w-sm text-base leading-7 text-slate-600">{content.faq.description}</p></div>
           <div className="lg:col-span-7">{content.faq.items.map((item) => <details className="group border-b border-slate-200 py-6 first:pt-0" key={item.question}><summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-semibold text-slate-900 [&::-webkit-details-marker]:hidden">{item.question}<span className="text-2xl font-light text-slate-400 transition group-open:rotate-45">+</span></summary><p className="mb-0 mt-4 pr-8 text-sm leading-7 text-slate-600">{item.answer}</p></details>)}</div>
         </div>
       </section>}
 
-      {content.closing.enabled && <section className="bg-[#0E1726] text-white"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-10 px-6 py-20 sm:flex-row sm:items-center lg:px-12"><h2 className={`${heading} max-w-2xl`}>{content.closing.title}</h2><div><ContentLink className="inline-flex min-h-14 items-center gap-3 rounded-xl bg-white px-7 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100" link={content.closing.action}>{content.closing.action.label} <Arrow /></ContentLink><p className="mb-0 mt-4 text-xs text-slate-400">{content.closing.note}</p></div></div></section>}
+      {content.closing.enabled && <section className="bg-[#0E1726] text-white"><div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-10 px-6 py-16 sm:flex-row sm:items-center sm:py-20 lg:px-12"><h2 className={`${heading} max-w-2xl`}>{content.closing.title}</h2><div><ContentLink className="inline-flex min-h-14 items-center gap-3 rounded-xl bg-white px-7 text-sm font-bold text-slate-950 transition hover:-translate-y-0.5 hover:bg-slate-100" link={content.closing.action}>{content.closing.action.label} <Arrow /></ContentLink><p className="mb-0 mt-4 text-xs text-slate-400">{content.closing.note}</p></div></div></section>}
     </main>
 
     {content.footer.enabled && <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 px-6 py-10 text-sm text-slate-500 sm:flex-row sm:items-center lg:px-12"><Link className="inline-flex" to="/" aria-label="Tatparya home"><BrandLogo className="h-9 w-auto max-w-[160px]" /></Link><div className="flex flex-wrap gap-6"><a href={content.footer.preview_link.href}>{content.footer.preview_link.label}</a>{content.blog?.enabled !== false && <Link to="/blog">Blog</Link>}<Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><Link to="/login">{content.footer.login_label}</Link><span>© {new Date().getFullYear()} {content.footer.copyright_name}</span></div></div></footer>}
@@ -117,13 +121,14 @@ function ProductWalkthrough({ content }) {
   const selectPrevious = () => setActive((current) => (current + steps.length - 1) % steps.length);
   const selectNext = () => setActive((current) => (current + 1) % steps.length);
 
-  return <section id="preview" className="scroll-mt-24 border-b border-slate-200 bg-[#F4F7FB]"><div className="mx-auto max-w-[1500px] px-6 py-24 lg:px-12 lg:py-28">
+  return <section id="preview" className="scroll-mt-24 border-b border-slate-200 bg-[#F4F7FB]"><div className="mx-auto max-w-[1500px] px-6 py-16 sm:py-20 lg:px-12 lg:py-28">
     <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-12 lg:items-end"><h2 className={`${heading} text-slate-950 lg:col-span-7`}>{content.title}<br /><span className="text-slate-500">{content.accent}</span></h2><p className="m-0 max-w-xl text-lg leading-8 text-slate-600 lg:col-span-5">{content.description}</p></div>
 
     <div className="mt-14">
       <div className="-mx-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-3 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0" role="tablist" aria-label="Product workflow">
         {steps.map((item, index) => <button type="button" role="tab" key={item.title} aria-selected={active === index} aria-controls="product-preview-panel" onClick={() => setActive(index)} className={`group min-w-[82vw] snap-center rounded-2xl border p-5 text-left transition sm:min-w-[58vw] md:min-w-0 lg:p-6 ${active === index ? 'border-[#172033] bg-[#0E1726] text-white shadow-lg shadow-slate-900/10' : 'border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:-translate-y-0.5'}`}><span className="flex items-center gap-3"><span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-mono text-[11px] font-bold ${active === index ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500'}`}>0{index + 1}</span><span className="text-sm font-bold sm:text-base">{item.title}</span></span><span className={`mt-4 block text-xs leading-6 sm:pl-12 ${active === index ? 'text-slate-300' : 'text-slate-500'}`}>{item.description}</span></button>)}
       </div>
+      <div className="mt-1 flex items-center justify-center gap-3 md:hidden"><span className="text-[10px] font-medium uppercase tracking-[0.08em] text-slate-400">Swipe to explore</span><div className="flex gap-1.5">{steps.map((item, index) => <button className={`h-1.5 rounded-full border-0 p-0 transition-all ${active === index ? 'w-5 bg-blue-500' : 'w-1.5 bg-slate-300'}`} type="button" key={item.title} aria-label={`Show ${item.title}`} aria-current={active === index ? 'step' : undefined} onClick={() => setActive(index)} />)}</div></div>
 
       <div id="product-preview-panel" role="tabpanel" className="mt-5 rounded-[30px] bg-[#0E1726] p-3 shadow-[0_35px_90px_-45px_rgba(15,23,42,0.65)] sm:p-5 lg:p-7">
         <div className="flex items-center justify-between gap-4 px-1 pb-3 sm:px-2 sm:pb-4"><div className="flex min-w-0 items-center gap-2.5"><BrandLogo variant="symbol" className="h-7 w-7 shrink-0" alt="" /><div className="min-w-0"><span className="block truncate text-xs font-semibold text-white">{stage.title}</span><span className="hidden text-[10px] text-slate-400 sm:block">{content.workspace_label}</span></div></div><div className="flex shrink-0 items-center gap-1.5"><button className="grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-800 text-white transition hover:border-slate-600 hover:bg-slate-700" type="button" onClick={selectPrevious} aria-label="Previous product step">←</button><span className="min-w-12 text-center font-mono text-[10px] text-slate-400">{active + 1} / {steps.length}</span><button className="grid h-9 w-9 place-items-center rounded-full border border-slate-700 bg-slate-800 text-white transition hover:border-slate-600 hover:bg-slate-700" type="button" onClick={selectNext} aria-label="Next product step">→</button></div></div>

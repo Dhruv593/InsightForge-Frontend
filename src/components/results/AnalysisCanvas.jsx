@@ -2,7 +2,7 @@ import { AnalysisResult } from './AnalysisResult';
 
 export function AnalysisCanvas({ question, result, savedAnswer, progress, loading, onRetry, onCancel, onEdit }) {
   if (loading) return <CanvasSkeleton />;
-  if (!question) return <EmptyAnalysis />;
+  if (!question) return <EmptyAnalysis onSelect={onEdit} />;
 
   const run = question.run;
   const running = run.status === 'pending' || run.status === 'running' || Boolean(progress);
@@ -37,8 +37,9 @@ function FailedState({ message, cancelled, onRetry, onEdit }) {
   );
 }
 
-function EmptyAnalysis() {
-  return <div className="grid min-h-full place-content-center px-6 text-center"><h2 className="m-0 text-lg font-semibold text-[#1D1D1F]">Ask your first question about this dataset.</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Your analysis results will appear here.</p></div>;
+function EmptyAnalysis({ onSelect }) {
+  const examples = ['Show the most important trends in this dataset.', 'Compare performance across the main categories.', 'Create useful visuals and recommend next actions.'];
+  return <div className="grid min-h-full place-content-center px-5 py-8 text-center"><h2 className="m-0 text-lg font-semibold text-[#1D1D1F]">Ask your first question about this dataset.</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Choose an example or write your own question below.</p><div className="mx-auto mt-5 grid w-full max-w-xl gap-2 sm:grid-cols-3">{examples.map((example) => <button className="rounded-xl border border-[#E1E1E5] bg-white px-3 py-3 text-left text-xs leading-5 text-[#515154] transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" type="button" key={example} onClick={() => onSelect(example)}>{example}</button>)}</div></div>;
 }
 
 function ResultUnavailable() {

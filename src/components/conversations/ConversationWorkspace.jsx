@@ -5,7 +5,7 @@ import { QuestionNavigator } from '../questions/QuestionNavigator';
 import { AnalysisCanvas } from '../results/AnalysisCanvas';
 import { AnalysisHeader } from '../results/AnalysisHeader';
 
-export function ConversationWorkspace({ conversation, dataset, messages, runs, resultsByRun, loading, querySubmitting, analysisProgress, queryError, profileComplete, onQuery, onProfile, onRename, onDelete, onRetry, onCancel }) {
+export function ConversationWorkspace({ conversation, dataset, messages, runs, resultsByRun, loading, querySubmitting, analysisProgress, queryError, profileComplete, credits, onQuery, onProfile, onRename, onDelete, onRetry, onCancel }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRunId, setSelectedRunId] = useState(null);
   const [questionsOpen, setQuestionsOpen] = useState(false);
@@ -66,7 +66,7 @@ export function ConversationWorkspace({ conversation, dataset, messages, runs, r
         <div className="min-h-0 overflow-y-auto" ref={resultScrollRef}>
           <AnalysisCanvas question={selectedQuestion} result={selectedResult} savedAnswer={savedAnswer} progress={selectedIsActiveSubmission ? analysisProgress : null} loading={loading} onRetry={onRetry} onCancel={onCancel} onEdit={(query) => setQueryDraft({ query, id: Date.now() })} />
         </div>
-        <QueryBox disabled={loading} submitting={querySubmitting} error={queryError} profileRequired={!profileComplete} onProfile={onProfile} onSubmit={onQuery} draft={queryDraft} />
+        <QueryBox disabled={loading} submitting={querySubmitting} error={queryError} profileRequired={!profileComplete} insufficientCredits={credits < 1} onProfile={onProfile} onSubmit={onQuery} draft={queryDraft} />
       </div>
       <QuestionNavigator questions={questions} selectedRunId={selectedRunId} open={questionsOpen} onClose={() => setQuestionsOpen(false)} onSelect={selectQuestion} />
     </section>

@@ -4,6 +4,7 @@ import { useToast } from '../context/ToastContext';
 import { Modal } from '../components/common/Modal';
 import { ConversationWorkspace } from '../components/conversations/ConversationWorkspace';
 import { DatasetProfile } from '../components/datasets/DatasetProfile';
+import { DatasetPreviewDialog } from '../components/datasets/DatasetPreviewDialog';
 import { AppHeader } from '../components/layout/AppHeader';
 import { datasetMeta, Sidebar } from '../components/layout/Sidebar';
 import { analysisService } from '../services/analysisService';
@@ -48,6 +49,7 @@ export function DashboardPage() {
   const [modalDatasetId, setModalDatasetId] = useState('');
   const [modalBusy, setModalBusy] = useState(false);
   const [tourDismissed, setTourDismissed] = useState(false);
+  const [previewDataset, setPreviewDataset] = useState(null);
 
   const selectedDatasetId = routeDatasetId ?? activeConversation?.dataset_id ?? null;
   const selectedDataset = datasets.find((item) => item.id === selectedDatasetId) ?? null;
@@ -278,6 +280,10 @@ export function DashboardPage() {
   }
 
   async function submitQuery(payload, force = false) {
+    if ((user?.credits ?? 0) < 1) {
+      setQueryError('You have no question credits left. Get more credits to continue.');
+      return false;
+    }
     setQuerySubmitting(true);
     setQueryError('');
     try {
@@ -286,6 +292,7 @@ export function DashboardPage() {
       setRuns((current) => [result.analysis_run, ...current]);
       setActiveQueue((current) => current.some((run) => run.id === result.analysis_run.id) ? current : [...current, result.analysis_run]);
       setAnalysisProgress({ label: 'Waiting to begin…', detail: 'Your question is safely queued.' });
+      refreshUser().catch(() => undefined);
       success('Analysis added to the queue.');
       return true;
     } catch (error) {
@@ -294,6 +301,7 @@ export function DashboardPage() {
         setModal({ type: 'duplicate-query', title: 'Similar analysis found', runId: parsed.details.analysis_run_id, payload });
       } else {
         setQueryError(parsed.message);
+        if (parsed.code === 'INSUFFICIENT_CREDITS') refreshUser().catch(() => undefined);
       }
       return false;
     } finally {
@@ -396,14 +404,14 @@ export function DashboardPage() {
           selectedConversationId={conversationId}
           uploading={uploading}
           onUpload={uploadDataset}
-          onSelectDataset={(id) => { navigate(`/dashboard/datasets/${id}`); setSidebarOpen(false); }}
+          onViewDatasets={() => { navigate('/dashboard'); setSidebarOpen(false); }}
           onSelectConversation={(id) => { navigate(`/dashboard/conversations/${id}`); setSidebarOpen(false); }}
           onNewAnalysis={openCreateConversation}
-          onDeleteDataset={(dataset) => setModal({ type: 'delete-dataset', title: `Delete ${dataset.original_file_name}?`, dataset })}
         />
         {sidebarOpen && <button className="fixed inset-x-0 bottom-0 top-14 z-10 border-0 bg-black/25 lg:hidden" aria-label="Close sidebar" onClick={() => setSidebarOpen(false)} />}
         <main className={`h-full min-h-0 min-w-0 flex-1 ${conversationId && activeConversation ? 'overflow-hidden p-0' : 'overflow-x-hidden overflow-y-auto overscroll-contain p-4 pb-10 lg:p-8 lg:pb-12'}`}>
           {!selectedDatasetId ? (
+            datasets.length ? <DatasetLibrary datasets={datasets} profiles={datasetProfiles} uploading={uploading} onUpload={() => emptyUploadRef.current?.click()} onOpen={(id) => navigate(`/dashboard/datasets/${id}`)} onPreview={setPreviewDataset} onDelete={(dataset) => setModal({ type: 'delete-dataset', title: `Delete ${dataset.original_file_name}?`, dataset })} /> :
             <section className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-xl flex-col items-start justify-center"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Your workspace</p><h1 className="mb-3 text-4xl font-semibold tracking-[-0.04em] text-[#1D1D1F]">Start with a dataset.</h1><p className="mb-7 max-w-lg text-[15px] leading-7 text-[#6E6E73]">Upload a CSV, Excel, JSON, or Parquet file, then create an analysis from the sidebar.</p><button data-tour="upload-dataset" className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={() => emptyUploadRef.current?.click()} disabled={uploading}>{uploading ? 'Uploading…' : 'Upload Dataset'}</button></section>
           ) : conversationId && activeConversation ? (
             <ConversationWorkspace
@@ -416,6 +424,7 @@ export function DashboardPage() {
               querySubmitting={querySubmitting}
               analysisProgress={analysisProgress}
               profileComplete={profileComplete}
+              credits={user?.credits ?? 0}
               onQuery={submitQuery}
               onProfile={profileDataset}
               onRename={openRenameConversation}
@@ -425,7 +434,7 @@ export function DashboardPage() {
             />
           ) : (
             <section className="mx-auto max-w-5xl">
-              <header className="flex flex-col items-start justify-between gap-5 px-0 py-5 sm:flex-row sm:items-end sm:py-7"><div className="min-w-0"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Selected dataset</p><h1 className="mb-2 break-words text-2xl font-semibold tracking-[-0.03em] text-[#1D1D1F] sm:text-3xl">{selectedDataset?.original_file_name ?? 'Loading dataset…'}</h1><p className="m-0 text-xs text-[#6E6E73]">{selectedDataset ? `${selectedDataset.file_type.toUpperCase()} · ${formatBytes(selectedDataset.file_size)}` : ''}</p></div><button data-tour="new-analysis" className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700" type="button" onClick={openCreateConversation}>New Analysis</button></header>
+              <header className="flex flex-col items-start justify-between gap-5 px-0 py-5 sm:flex-row sm:items-end sm:py-7"><div className="min-w-0"><p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Selected dataset</p><h1 className="mb-2 break-words text-2xl font-semibold tracking-[-0.03em] text-[#1D1D1F] sm:text-3xl">{selectedDataset?.original_file_name ?? 'Loading dataset…'}</h1><p className="m-0 text-xs text-[#6E6E73]">{selectedDataset ? `${selectedDataset.file_type.toUpperCase()} · ${formatBytes(selectedDataset.file_size)}` : ''}</p></div><div className="flex flex-wrap gap-2"><button className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#D2D2D7] bg-white px-4 text-sm font-medium text-[#3A3A3C] transition hover:bg-[#F7F7F8] disabled:opacity-50" type="button" onClick={() => setPreviewDataset(selectedDataset)} disabled={!selectedDataset}>View data</button><button data-tour="new-analysis" className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700" type="button" onClick={openCreateConversation}>New Analysis</button></div></header>
               <DatasetProfile profile={profile} loading={profileLoading} profiling={profiling} onProfile={profileDataset} />
             </section>
           )}
@@ -436,9 +445,33 @@ export function DashboardPage() {
         {modal.type === 'create' ? <NewAnalysisFields datasets={datasets} profiles={datasetProfiles} title={modalInput} datasetId={modalDatasetId} uploading={uploading} onTitleChange={setModalInput} onDatasetChange={setModalDatasetId} onUpload={() => emptyUploadRef.current?.click()} /> : modal.type === 'rename' ? <label className="grid gap-2 text-sm font-medium text-[#3A3A3C]">Analysis name<input className="min-h-11 rounded-lg border border-[#D2D2D7] bg-white px-3 py-2 text-[#1D1D1F] focus:border-brand-500" value={modalInput} onChange={(event) => setModalInput(event.target.value)} maxLength={200} autoFocus /></label> : modal.type === 'duplicate-query' ? <div><p className="mt-0">This question has already been analyzed for the selected dataset.</p><button className="border-0 bg-transparent p-0 text-sm font-medium text-brand-600 hover:text-brand-700" type="button" onClick={() => { navigate(`/dashboard/conversations/${conversationId}?run=${modal.runId}`); setModal(null); }}>Open existing result</button></div> : <p className="m-0">{modal.type === 'delete-dataset' ? 'This also removes its profile and analyses. This action cannot be undone.' : 'Its messages and analysis runs will be removed. The dataset will remain.'}</p>}
       </Modal>}
       {onboardingActive && !datasetsLoading && !conversationsLoading && <OnboardingTour step={onboardingStep} hidden={Boolean(modal)} onSkip={finishOnboarding} />}
+      {previewDataset && <DatasetPreviewDialog dataset={previewDataset} onClose={() => setPreviewDataset(null)} />}
     </div>
   );
 }
+
+function DatasetLibrary({ datasets, profiles, uploading, onUpload, onOpen, onPreview, onDelete }) {
+  return <section className="mx-auto max-w-5xl">
+    <header className="flex flex-col items-start justify-between gap-4 py-5 sm:flex-row sm:items-end sm:py-7">
+      <div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-brand-600">Data</p><h1 className="m-0 text-3xl font-semibold tracking-[-0.035em] text-[#1D1D1F]">Your datasets</h1><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Open a dataset to review its profile or start an analysis.</p></div>
+      <button className="inline-flex min-h-10 items-center justify-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50" type="button" onClick={onUpload} disabled={uploading}>{uploading ? 'Uploading…' : 'Upload Dataset'}</button>
+    </header>
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{datasets.map((dataset) => {
+      const profile = profiles?.[dataset.id];
+      const ready = profile?.profile_status === 'completed';
+      return <article className="group min-w-0 rounded-xl border border-[#E1E1E5] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.025)] transition hover:border-[#CBCBD1] hover:shadow-[0_5px_18px_rgba(0,0,0,0.055)]" key={dataset.id}>
+        <button className="block w-full min-w-0 border-0 bg-transparent p-0 text-left" type="button" onClick={() => onOpen(dataset.id)}>
+          <span className="mb-4 grid h-9 w-9 place-items-center rounded-lg bg-indigo-50 text-indigo-600"><DatasetFileIcon /></span>
+          <span className="block truncate text-sm font-semibold text-[#1D1D1F]" title={dataset.original_file_name}>{dataset.original_file_name}</span>
+          <span className="mt-1 block truncate text-xs text-[#86868B]">{datasetMeta(dataset, profile)}</span>
+        </button>
+        <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#EFEFF1] pt-3"><span className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${ready ? 'text-emerald-700' : 'text-amber-700'}`}><span className={`h-1.5 w-1.5 rounded-full ${ready ? 'bg-emerald-500' : 'bg-amber-500'}`} />{ready ? 'Ready' : 'Not profiled'}</span><div className="flex items-center gap-3"><button className="border-0 bg-transparent p-0 text-xs font-medium text-[#515154] hover:text-[#1D1D1F]" type="button" onClick={() => onPreview(dataset)}>View data</button><button className="border-0 bg-transparent p-0 text-xs font-medium text-brand-600 hover:text-brand-700" type="button" onClick={() => onOpen(dataset.id)}>Open</button><button className="border-0 bg-transparent p-0 text-xs font-medium text-red-500 hover:text-red-700" type="button" onClick={() => onDelete(dataset)}>Delete</button></div></div>
+      </article>;
+    })}</div>
+  </section>;
+}
+
+function DatasetFileIcon() { return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v5h5M10 13h5M10 17h5" /></svg>; }
 
 function NewAnalysisFields({ datasets, profiles, title, datasetId, uploading, onTitleChange, onDatasetChange, onUpload }) {
   return (

@@ -7,7 +7,9 @@ const navigation = [
   { label: 'Overview', to: '/admin', icon: 'home' },
   { label: 'Landing page', to: '/admin/landing-content', icon: 'page' },
   { label: 'Blog posts', to: '/admin/blogs', icon: 'blog' },
+  { label: 'Plans page', to: '/admin/plans', icon: 'plans' },
   { label: 'AI model', to: '/admin/ai-model', icon: 'model' },
+  { label: 'Users & access', to: '/admin/users', icon: 'users' },
   { label: 'Monitoring', to: '/monitoring', icon: 'activity' },
   { label: 'Account settings', to: '/account', icon: 'user' },
 ];
@@ -18,7 +20,7 @@ export function AdminShell({ children }) {
   const editingLanding = location.pathname.startsWith('/admin/landing-content');
   const landingSections = [['navigation', 'Navbar'], ['hero', 'Hero'], ['how-it-works', 'How it works'], ['preview', 'Product preview'], ['platform', 'Platform'], ['faq', 'FAQ'], ['closing', 'Closing CTA'], ['footer', 'Footer']];
   return <div className="min-h-screen bg-[#F5F5F7] pt-14">
-    <AppHeader />
+    <AppHeader showCredits={false} />
     <div className="mx-auto grid min-h-[calc(100vh-3.5rem)] max-w-[1600px] lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="border-b border-[#E1E1E5] bg-white lg:border-b-0 lg:border-r">
         <div className="lg:sticky lg:top-14 lg:flex lg:h-[calc(100vh-3.5rem)] lg:flex-col lg:px-4 lg:py-6">
@@ -52,8 +54,10 @@ function AdminIcon({ name }) {
     page: <><path d="M5 3h10l4 4v14H5z" /><path d="M14 3v5h5M8 13h8M8 17h6" /></>,
     blog: <><path d="M5 4h14v16H5z" /><path d="M8 8h8M8 12h8M8 16h5" /></>,
     model: <><path d="M4 7h16M4 17h16" /><circle cx="9" cy="7" r="3" fill="currentColor" /><circle cx="15" cy="17" r="3" fill="currentColor" /></>,
+    plans: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 9h18M7 15h4" /></>,
     activity: <><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" /><path d="M2 19h20" /></>,
     user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
+    users: <><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 20a6 6 0 0 1 12 0M14 15a5 5 0 0 1 7 4.5" /></>,
     back: <><path d="m10 17-5-5 5-5" /><path d="M5 12h14" /></>,
     external: <><path d="M14 5h5v5M13 11l6-6" /><path d="M19 13v6H5V5h6" /></>,
   };

@@ -80,6 +80,7 @@ const friendlyErrors = {
   FILE_TOO_LARGE: 'This file exceeds the upload limit.',
   DATASET_NOT_FOUND: 'Dataset could not be found.',
   CONVERSATION_NOT_FOUND: 'Conversation could not be found.',
+  INSUFFICIENT_CREDITS: 'You have no question credits left. Get more credits to continue.',
 };
 
 export function getApiError(error, fallback = 'Something went wrong. Please try again.') {

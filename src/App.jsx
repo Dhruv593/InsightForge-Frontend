@@ -15,6 +15,9 @@ import { BlogListPage } from './pages/BlogListPage';
 import { BlogDetailPage } from './pages/BlogDetailPage';
 import { AdminBlogsPage } from './pages/AdminBlogsPage';
 import { AdminModelPage } from './pages/AdminModelPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { PlansPage } from './pages/PlansPage';
+import { AdminPlansPage } from './pages/AdminPlansPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export default function App() {
@@ -39,11 +42,14 @@ export default function App() {
             <Route path="/dashboard/conversations/:conversationId" element={<DashboardPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/monitoring" element={<MonitoringPage />} />
+            <Route path="/plans" element={<PlansPage />} />
             <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/landing-content" element={<LandingContentPage />} />
             <Route path="/admin/landing-content/:section" element={<LandingContentPage />} />
             <Route path="/admin/blogs" element={<AdminBlogsPage />} />
             <Route path="/admin/ai-model" element={<AdminModelPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/plans" element={<AdminPlansPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
