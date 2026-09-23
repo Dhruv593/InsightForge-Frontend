@@ -22,6 +22,7 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
   const emptyUploadRef = useRef(null);
+  const activeQueueIdsRef = useRef(new Set());
   const [datasets, setDatasets] = useState([]);
   const [datasetsLoading, setDatasetsLoading] = useState(true);
   const [datasetProfiles, setDatasetProfiles] = useState({});
@@ -124,7 +125,14 @@ export function DashboardPage() {
     const loadQueue = async () => {
       try {
         const response = await analysisService.activeQueue();
-        if (current) setActiveQueue(response.items ?? []);
+        const items = response.items ?? [];
+        if (current) {
+          const nextIds = new Set(items.map((run) => run.id));
+          const runFinished = [...activeQueueIdsRef.current].some((runId) => !nextIds.has(runId));
+          activeQueueIdsRef.current = nextIds;
+          setActiveQueue(items);
+          if (runFinished) refreshUser().catch(() => undefined);
+        }
       } catch {
         // The conversation-specific polling remains available if this summary request fails.
       }
@@ -132,7 +140,7 @@ export function DashboardPage() {
     };
     loadQueue();
     return () => { current = false; window.clearTimeout(timer); };
-  }, []);
+  }, [refreshUser]);
 
   useEffect(() => {
     let current = true;
@@ -223,6 +231,7 @@ export function DashboardPage() {
           if (!current) return;
           setMessages(messageResponse.items ?? []);
           setResultsByRun(results);
+          if (completedSinceLastPoll) refreshUser().catch(() => undefined);
         }
         setRuns(loadedRuns);
         if (active?.status === 'pending') {
@@ -239,7 +248,7 @@ export function DashboardPage() {
     };
     timer = window.setTimeout(refreshActiveRuns, 350);
     return () => { current = false; window.clearTimeout(timer); };
-  }, [conversationId, activeRunSignature]);
+  }, [conversationId, activeRunSignature, refreshUser]);
 
   async function uploadDataset(file, keepAnalysisModal = false) {
     setUploading(true);
@@ -292,7 +301,6 @@ export function DashboardPage() {
       setRuns((current) => [result.analysis_run, ...current]);
       setActiveQueue((current) => current.some((run) => run.id === result.analysis_run.id) ? current : [...current, result.analysis_run]);
       setAnalysisProgress({ label: 'Waiting to begin…', detail: 'Your question is safely queued.' });
-      refreshUser().catch(() => undefined);
       success('Analysis added to the queue.');
       return true;
     } catch (error) {

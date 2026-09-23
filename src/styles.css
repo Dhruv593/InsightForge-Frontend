@@ -46,8 +46,9 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  html { min-width: 0; background: #F5F5F7; }
-  body { @apply m-0 min-h-screen min-w-0 font-sans antialiased; background: #F5F5F7; color: #1D1D1F; }
+  html { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; background: #F5F5F7; }
+  body, #root { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; }
+  body { @apply m-0 min-h-screen font-sans antialiased; background: #F5F5F7; color: #1D1D1F; }
   button, input, textarea, select { font: inherit; }
   button, a { -webkit-tap-highlight-color: transparent; }
   button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
@@ -69,7 +70,7 @@
   .voice-recording-bars > span:nth-child(3) { height: 16px; animation-delay: -600ms; }
   .voice-recording-bars > span:nth-child(4) { height: 10px; animation-delay: -150ms; }
   .query-composer { padding-bottom: max(0.625rem, env(safe-area-inset-bottom)); }
-  .landing-page, .dashboard-shell { font-family: inherit; }
+  .landing-page, .dashboard-shell { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; font-family: inherit; }
   .hero-flow-beam { animation: hero-flow-beam 5.2s ease-in-out infinite; }
   .hero-flow-dot { animation: hero-flow-dot 5.2s ease-in-out infinite; }
   .hero-flow-node { animation: hero-flow-node 5.2s ease-in-out infinite; }

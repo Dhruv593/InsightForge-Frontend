@@ -39,7 +39,7 @@ export function AppHeader({ onToggleSidebar, activeRuns = [], onSelectRun, onCan
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[70] flex h-14 items-center justify-between border-b border-[#E1E1E5] bg-white px-4 sm:px-5">
+    <header className="fixed inset-x-0 top-0 z-[70] flex h-14 max-w-full items-center justify-between overflow-x-clip border-b border-[#E1E1E5] bg-white px-2 min-[360px]:px-4 sm:px-5">
       <div className="flex items-center gap-1.5 sm:gap-3">
         {onToggleSidebar && <button className="grid h-11 w-11 place-items-center rounded-xl border-0 bg-transparent text-lg text-[#515154] hover:bg-[#F2F2F4] lg:hidden" type="button" onClick={onToggleSidebar} aria-label="Toggle sidebar">☰</button>}
         <button className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border-0 bg-transparent p-0 hover:bg-[#F7F7F8]" type="button" onClick={() => navigate('/dashboard')} aria-label="Tatparya dashboard"><BrandLogo variant="symbol" className="h-8 w-8 min-[380px]:hidden" /><BrandLogo className="hidden h-8 w-auto max-w-[138px] min-[380px]:block" /></button>
@@ -54,7 +54,7 @@ export function AppHeader({ onToggleSidebar, activeRuns = [], onSelectRun, onCan
           <button className="inline-flex h-11 items-center gap-2 rounded-full border border-transparent bg-transparent py-1 pl-2 pr-1 transition hover:border-[#E1E1E5] hover:bg-[#F7F7F8]" type="button" onClick={() => { setAccountOpen((value) => !value); setQueueOpen(false); }} aria-expanded={accountOpen} aria-haspopup="menu">
             <span className="hidden max-w-36 truncate text-[13px] font-medium text-[#3A3A3C] sm:block">{user?.name}</span>
             <span className="grid h-8 w-8 place-items-center rounded-full bg-[#E8E8ED] text-[11px] font-semibold text-[#515154]">{(user?.name || 'U').charAt(0).toUpperCase()}</span>
-            <svg className={`mr-1 h-3 w-3 text-[#6E6E73] transition ${accountOpen ? 'rotate-180' : ''}`} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><path d="m3 4.5 3 3 3-3" /></svg>
+            <svg className={`mr-1 hidden h-3 w-3 text-[#6E6E73] transition min-[360px]:block ${accountOpen ? 'rotate-180' : ''}`} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true"><path d="m3 4.5 3 3 3-3" /></svg>
           </button>
           {accountOpen && <div className="absolute right-0 top-11 z-[80] w-56 overflow-hidden rounded-xl border border-[#E1E1E5] bg-white p-1.5 shadow-xl" role="menu">
             <div className="border-b border-[#ECECEF] px-3 py-2.5"><span className="block truncate text-xs font-semibold text-[#1D1D1F]">{user?.name}</span><span className="mt-0.5 block truncate text-[11px] text-[#6E6E73]">{user?.email}</span></div>

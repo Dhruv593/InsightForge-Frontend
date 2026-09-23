@@ -7,21 +7,23 @@ export function ReportPdfPreview({ url, filename, onClose, onDownloaded }) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
+  const previewUrl = `${url}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-3 backdrop-blur-sm sm:p-6" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className="flex h-[min(90vh,900px)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/20 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)]" role="dialog" aria-modal="true" aria-labelledby="pdf-preview-title">
-        <div className="flex shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-4 py-3 sm:px-5">
+    <div className="fixed inset-0 z-[110] flex min-h-0 min-w-0 items-center justify-center overflow-hidden bg-slate-950/45 backdrop-blur-sm sm:p-4 lg:p-6" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="flex h-[100dvh] min-h-0 w-full min-w-0 max-w-6xl flex-col overflow-hidden bg-white shadow-[0_24px_80px_rgba(15,23,42,0.28)] sm:h-[min(94dvh,960px)] sm:rounded-2xl sm:border sm:border-white/30" role="dialog" aria-modal="true" aria-labelledby="pdf-preview-title">
+        <div className="flex min-h-14 shrink-0 items-center justify-between gap-2 border-b border-[#E5E5EA] px-3 py-2.5 sm:gap-4 sm:px-5 sm:py-3">
           <div className="min-w-0">
             <h2 id="pdf-preview-title" className="m-0 text-sm font-semibold text-slate-900">Report preview</h2>
-            <p className="mb-0 mt-0.5 truncate text-xs text-slate-500">{filename}</p>
+            <p className="mb-0 mt-0.5 hidden truncate text-xs text-slate-500 sm:block">{filename}</p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <a className="inline-flex h-9 items-center rounded-lg bg-indigo-600 px-3.5 text-xs font-semibold text-white hover:bg-indigo-700" href={url} download={filename} onClick={onDownloaded}>Download PDF</a>
-            <button className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-lg text-slate-500 hover:bg-slate-50 hover:text-slate-900" type="button" aria-label="Close report preview" onClick={onClose}>×</button>
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <a className="inline-flex h-11 items-center rounded-xl bg-[#1D1D1F] px-3.5 text-xs font-semibold text-white transition hover:bg-[#3A3A3C] sm:px-4" href={url} download={filename} onClick={onDownloaded}><span className="sm:hidden">Download</span><span className="hidden sm:inline">Download PDF</span></a>
+            <button className="grid h-11 w-11 place-items-center rounded-xl border border-[#D2D2D7] bg-white text-lg text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]" type="button" aria-label="Close report preview" onClick={onClose}>×</button>
           </div>
         </div>
-        <div className="min-h-0 flex-1 bg-slate-100 p-2 sm:p-4">
-          <iframe className="h-full w-full rounded-lg border border-slate-200 bg-white" src={url} title="Tatparya PDF report preview" />
+        <div className="min-h-0 min-w-0 flex-1 overflow-hidden bg-[#E8E8ED] p-0 sm:p-3">
+          <iframe className="block h-full w-full min-w-0 border-0 bg-white sm:rounded-xl sm:border sm:border-[#D2D2D7]" src={previewUrl} title="Tatparya PDF report preview" />
         </div>
       </section>
     </div>

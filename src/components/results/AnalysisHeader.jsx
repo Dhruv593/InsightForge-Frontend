@@ -3,7 +3,7 @@ import { prepareReportPdf } from '../../utils/reportPdf';
 import { useToast } from '../../context/ToastContext';
 import { ReportPdfPreview } from './ReportPdfPreview';
 
-export function AnalysisHeader({ compact = false, conversation, dataset, profileComplete, result, onRename, onDelete, onOpenQuestions }) {
+export function AnalysisHeader({ conversation, dataset, profileComplete, result, onRename, onDelete, onOpenQuestions }) {
   const [downloading, setDownloading] = useState(false);
   const [preview, setPreview] = useState(null);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -37,11 +37,11 @@ export function AnalysisHeader({ compact = false, conversation, dataset, profile
   }
 
   return (
-    <header className={`border-b border-[#E5E5EA] bg-white px-3 transition-[padding] duration-200 sm:px-5 ${compact ? 'py-1' : 'py-2 sm:py-2.5'}`}>
+    <header className="border-b border-[#E5E5EA] bg-white px-3 py-1.5 sm:px-5 sm:py-2.5">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="m-0 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1D1D1F] sm:text-base" title={conversation.title}>{conversation.title}</h1>
-          <p className={`mb-0 mt-0.5 min-w-0 items-center gap-1.5 text-[11px] leading-4 text-[#6E6E73] ${compact ? 'hidden' : 'flex'}`}>
+          <p className="mb-0 mt-0.5 hidden min-w-0 items-center gap-1.5 text-[11px] leading-4 text-[#6E6E73] sm:flex">
             <span className="min-w-0 truncate" title={dataset?.original_file_name}>{dataset?.original_file_name || 'Dataset'}</span>
             <span className="shrink-0 text-[#C7C7CC]">·</span>
             <span className="inline-flex shrink-0 items-center gap-1.5" title={profileComplete ? 'Profile ready' : 'Not profiled'}><span className={`h-1.5 w-1.5 rounded-full ${profileComplete ? 'bg-emerald-500' : 'bg-amber-500'}`} /><span className="hidden min-[390px]:inline">{profileComplete ? 'Profile ready' : 'Not profiled'}</span></span>

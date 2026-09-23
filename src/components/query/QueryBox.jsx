@@ -101,8 +101,8 @@ export function QueryBox({ disabled, submitting, error, profileRequired, insuffi
   }
 
   return (
-    <form className="query-composer shrink-0 bg-transparent px-2.5 pt-2.5 sm:px-6 sm:pt-3" onSubmit={submit}>
-      <div className="mx-auto max-w-4xl">
+    <form className="query-composer w-full min-w-0 max-w-full shrink-0 overflow-x-hidden bg-transparent px-2.5 pt-2.5 sm:px-6 sm:pt-3" onSubmit={submit}>
+      <div className="mx-auto min-w-0 max-w-4xl">
         {profileRequired && <div className="mb-3 flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-900"><span>Profile this dataset before starting an analysis.</span><button className="border-0 bg-transparent p-0 font-medium text-brand-600 hover:text-brand-700" type="button" onClick={onProfile}>Profile dataset</button></div>}
         {!profileRequired && insufficientCredits && <div className="mb-3 flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-900"><span>You have no question credits left.</span><button className="shrink-0 border-0 bg-transparent p-0 font-semibold text-brand-600 hover:text-brand-700" type="button" onClick={() => navigate('/plans')}>Get more credits</button></div>}
         {error && <div className="mb-3"><ErrorMessage message={error} /></div>}
