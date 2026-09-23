@@ -12,7 +12,7 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
       <section className="rounded-xl border border-[#E4E2F4] bg-[#F7F6FF] px-4 py-3" aria-label="Active question">
         <p className="m-0 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[#30303A]">{question.query}</p>
       </section>
-      {running ? <RunningState progress={progress} onCancel={() => onCancel(run.id)} /> : result?.report ? <AnalysisResult report={result.report} charts={result.charts || []} /> : savedAnswer ? <p className="whitespace-pre-wrap text-sm leading-6 text-[#515154]">{savedAnswer}</p> : ['failed', 'cancelled'].includes(run.status) ? <FailedState message={run.error_message} cancelled={run.status === 'cancelled'} onRetry={() => onRetry(run.id)} onEdit={() => onEdit(question.query)} /> : <ResultUnavailable />}
+      {running ? <RunningState progress={progress} onCancel={() => onCancel(run.id)} /> : result?.report || result?.charts?.length ? <AnalysisResult report={result?.report} charts={result?.charts || []} /> : savedAnswer ? <p className="whitespace-pre-wrap text-sm leading-6 text-[#515154]">{savedAnswer}</p> : ['failed', 'cancelled'].includes(run.status) ? <FailedState message={run.error_message} cancelled={run.status === 'cancelled'} onRetry={() => onRetry(run.id)} onEdit={() => onEdit(question.query)} /> : <ResultUnavailable />}
     </div>
   );
 }

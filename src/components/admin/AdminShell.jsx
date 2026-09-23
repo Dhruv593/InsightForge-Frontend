@@ -9,6 +9,7 @@ const navigation = [
   { label: 'Blog posts', to: '/admin/blogs', icon: 'blog' },
   { label: 'Plans page', to: '/admin/plans', icon: 'plans' },
   { label: 'AI model', to: '/admin/ai-model', icon: 'model' },
+  { label: 'Email templates', to: '/admin/email-templates', icon: 'email' },
   { label: 'Users & access', to: '/admin/users', icon: 'users' },
   { label: 'Monitoring', to: '/monitoring', icon: 'activity' },
   { label: 'Account settings', to: '/account', icon: 'user' },
@@ -58,6 +59,7 @@ function AdminIcon({ name }) {
     activity: <><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" /><path d="M2 19h20" /></>,
     user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
     users: <><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 20a6 6 0 0 1 12 0M14 15a5 5 0 0 1 7 4.5" /></>,
+    email: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></>,
     back: <><path d="m10 17-5-5 5-5" /><path d="M5 12h14" /></>,
     external: <><path d="M14 5h5v5M13 11l6-6" /><path d="M19 13v6H5V5h6" /></>,
   };

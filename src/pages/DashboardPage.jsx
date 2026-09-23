@@ -388,9 +388,9 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="dashboard-shell min-h-screen bg-[#F5F5F7]" data-onboarding-step={onboardingActive && !modal ? onboardingStep : undefined}>
+    <div className="dashboard-shell min-h-[100dvh] bg-[#F5F5F7]" data-onboarding-step={onboardingActive && !modal ? onboardingStep : undefined}>
       <AppHeader onToggleSidebar={() => setSidebarOpen((value) => !value)} activeRuns={activeQueue} onSelectRun={(run) => navigate(`/dashboard/conversations/${run.conversation_id}?run=${run.id}`)} onCancelRun={(run) => cancelAnalysis(run.id)} />
-      <div className="flex h-screen overflow-hidden pt-14">
+      <div className="flex h-[100dvh] overflow-hidden pt-14">
         <Sidebar
           open={sidebarOpen}
           pinned={sidebarPinned}
@@ -506,7 +506,7 @@ function DatasetPicker({ datasets, profiles, value, onChange }) {
         <span className="min-w-0 flex-1"><span className="block truncate text-[13px] font-medium text-[#1D1D1F]" title={selected?.original_file_name}>{selected?.original_file_name}</span><span className="mt-0.5 block truncate text-[11px] font-normal text-[#86868B]">{selected ? datasetMeta(selected, profiles?.[selected.id]) : 'Choose a dataset'}</span></span>
         <svg className={`h-4 w-4 shrink-0 text-[#86868B] transition ${open ? 'rotate-180' : ''}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
       </button>
-      {open && <div className="absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-56 overflow-y-auto rounded-xl border border-[#DADAE0] bg-white p-1.5 shadow-[0_14px_34px_rgba(0,0,0,0.14)]" role="listbox" aria-labelledby="analysis-dataset-label">
+      {open && <div className="absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[min(14rem,35dvh)] overflow-y-auto overscroll-contain rounded-xl border border-[#DADAE0] bg-white p-1.5 shadow-[0_14px_34px_rgba(0,0,0,0.14)]" role="listbox" aria-labelledby="analysis-dataset-label">
         {datasets.map((dataset) => {
           const active = dataset.id === value;
           return <button className={`flex w-full min-w-0 items-center gap-3 rounded-lg border-0 px-3 py-2.5 text-left transition ${active ? 'bg-indigo-50' : 'bg-transparent hover:bg-[#F5F5F7]'}`} type="button" role="option" aria-selected={active} key={dataset.id} onClick={() => { onChange(dataset.id); setOpen(false); }}>
@@ -538,15 +538,14 @@ function progressFromAgentRuns(agentRuns) {
 async function loadResults(runs) {
   const completed = runs.filter((run) => run.status === 'completed');
   const entries = await Promise.all(completed.map(async (run) => {
-    try {
-      const [report, chartResponse] = await Promise.all([
-        analysisService.getReport(run.id),
-        analysisService.listCharts(run.id),
-      ]);
-      return [run.id, { report, charts: chartResponse.items ?? [] }];
-    } catch {
-      return [run.id, { report: null, charts: [] }];
-    }
+    const [reportResult, chartResult] = await Promise.allSettled([
+      analysisService.getReport(run.id),
+      analysisService.listCharts(run.id),
+    ]);
+    return [run.id, {
+      report: reportResult.status === 'fulfilled' ? reportResult.value : null,
+      charts: chartResult.status === 'fulfilled' ? chartResult.value.items ?? [] : [],
+    }];
   }));
   return Object.fromEntries(entries);
 }

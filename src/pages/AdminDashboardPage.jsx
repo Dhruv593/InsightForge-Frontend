@@ -34,7 +34,7 @@ export function AdminDashboardPage() {
       <Metric label="Active analyses" value={(monitoring?.summary?.queued_analyses ?? 0) + (monitoring?.summary?.running_analyses ?? 0)} detail="Queued and running" />
     </section>
 
-    <section className="grid gap-4 lg:grid-cols-3">
+    <section className="grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
       <DashboardCard title="Landing page" description="Update headings, actions, product screenshots, features, FAQs, and footer content.">
         <div className="flex flex-wrap gap-2"><Link className="rounded-lg bg-brand-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-brand-700" to="/admin/landing-content">Edit landing page</Link><Link className="rounded-lg border border-[#D2D2D7] bg-white px-4 py-2.5 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to="/?preview=1" target="_blank">View public site ↗</Link></div>
       </DashboardCard>
@@ -43,6 +43,9 @@ export function AdminDashboardPage() {
       </DashboardCard>
       <DashboardCard title="System monitoring" description="Review usage, provider reliability, agent activity, and recent analysis failures.">
         <Link className="inline-flex rounded-lg border border-[#D2D2D7] bg-white px-4 py-2.5 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to="/monitoring">Open monitoring</Link>
+      </DashboardCard>
+      <DashboardCard title="Email templates" description="Manage verification, password, payment, credit, and account notification copy.">
+        <Link className="inline-flex rounded-lg border border-[#D2D2D7] bg-white px-4 py-2.5 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to="/admin/email-templates">Edit templates</Link>
       </DashboardCard>
     </section>
 

@@ -38,10 +38,10 @@ export function AdminUsersPage() {
     } finally { setChangingId(null); }
   }
 
-  async function adjustCredits(target, delta) {
+  async function adjustCredits(target, delta, reason) {
     setChangingId(target.id);
     try {
-      const updated = await adminUserService.adjustCredits(target.id, delta);
+      const updated = await adminUserService.adjustCredits(target.id, delta, reason);
       setUsers((current) => current.map((item) => item.id === updated.id ? updated : item));
       if (updated.id === user.id) refreshUser().catch(() => undefined);
       toast.success(`${Math.abs(delta)} credit${Math.abs(delta) === 1 ? '' : 's'} ${delta > 0 ? 'added' : 'removed'}.`);
@@ -60,7 +60,7 @@ export function AdminUsersPage() {
         const hasAssignedAccess = item.admin_access || item.admin_managed_by_environment;
         return <article className="grid gap-4 p-4 md:grid-cols-[minmax(0,1fr)_auto_auto] md:items-center sm:px-6" key={item.id}>
           <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className="truncate text-sm font-semibold text-[#1D1D1F]">{item.name}</span>{hasAssignedAccess && <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-700">{item.is_admin ? 'Admin' : 'Admin pending verification'}</span>}<span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${item.is_email_verified ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{item.is_email_verified ? 'Email verified' : 'Email not verified'}</span></div><p className="mb-0 mt-1 truncate text-xs text-[#6E6E73]">{item.email}</p><p className="mb-0 mt-1 text-[11px] text-[#86868B]">{item.credits} credits</p></div>
-          <CreditEditor name={item.name} value={item.credits} saving={changingId === item.id} onAdjust={(delta) => adjustCredits(item, delta)} />
+          <CreditEditor name={item.name} value={item.credits} saving={changingId === item.id} onAdjust={(delta, reason) => adjustCredits(item, delta, reason)} />
           <button className={`min-h-9 rounded-lg border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${hasAssignedAccess ? 'border-red-200 bg-white text-red-600 hover:bg-red-50' : 'border-brand-600 bg-brand-600 text-white hover:bg-brand-700'}`} type="button" disabled={protectedRole || changingId === item.id} title={item.id === user.id ? 'You cannot change your own access' : item.admin_managed_by_environment ? 'Managed by server environment' : undefined} onClick={() => changeAccess(item, !hasAssignedAccess)}>{changingId === item.id ? 'Saving…' : hasAssignedAccess ? 'Remove admin' : 'Make admin'}</button>
         </article>;
       })}</div>}
@@ -70,6 +70,7 @@ export function AdminUsersPage() {
 
 function CreditEditor({ name, value, saving, onAdjust }) {
   const [draft, setDraft] = useState(String(value));
+  const [reason, setReason] = useState('');
 
   useEffect(() => setDraft(String(value)), [value]);
 
@@ -88,12 +89,26 @@ function CreditEditor({ name, value, saving, onAdjust }) {
       setDraft(String(value));
       return;
     }
-    if (!await onAdjust(delta)) setDraft(String(value));
+    if (reason.trim().length < 3) {
+      setDraft(String(value));
+      return;
+    }
+    if (await onAdjust(delta, reason.trim())) setReason('');
+    else setDraft(String(value));
   }
 
-  return <div className="inline-flex w-fit items-center overflow-hidden rounded-lg border border-[#DADAE0] bg-white focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-50">
-    <button className="h-9 w-9 border-0 bg-transparent text-base text-[#515154] hover:bg-[#F5F5F7] disabled:opacity-40" type="button" aria-label={`Remove one credit from ${name}`} disabled={saving || value < 1} onClick={() => onAdjust(-1)}>−</button>
-    <input className="h-9 w-16 border-x border-y-0 border-[#ECECEF] bg-white px-1 text-center text-xs font-semibold text-[#3A3A3C] outline-none disabled:bg-[#F7F7F8]" type="text" inputMode="numeric" pattern="[0-9]*" aria-label={`Credits for ${name}`} value={draft} disabled={saving} onChange={(event) => { if (/^\d*$/.test(event.target.value)) setDraft(event.target.value); }} onBlur={commit} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} />
-    <button className="h-9 w-9 border-0 bg-transparent text-base text-[#515154] hover:bg-[#F5F5F7] disabled:opacity-40" type="button" aria-label={`Add one credit to ${name}`} disabled={saving} onClick={() => onAdjust(1)}>+</button>
+  const reasonReady = reason.trim().length >= 3;
+  async function quickAdjust(delta) {
+    if (!reasonReady) return;
+    if (await onAdjust(delta, reason.trim())) setReason('');
+  }
+
+  return <div className="grid gap-2">
+    <input className="h-8 w-44 rounded-lg border border-[#DADAE0] bg-white px-2 text-[11px] outline-none focus:border-brand-500 disabled:bg-[#F7F7F8]" type="text" maxLength="240" placeholder="Reason for credit change" aria-label={`Reason for changing ${name}'s credits`} value={reason} disabled={saving} onChange={(event) => setReason(event.target.value)} />
+    <div className="inline-flex w-fit items-center overflow-hidden rounded-lg border border-[#DADAE0] bg-white focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-50">
+      <button className="h-9 w-9 border-0 bg-transparent text-base text-[#515154] hover:bg-[#F5F5F7] disabled:opacity-40" type="button" aria-label={`Remove one credit from ${name}`} disabled={saving || value < 1 || !reasonReady} onClick={() => quickAdjust(-1)}>−</button>
+      <input className="h-9 w-16 border-x border-y-0 border-[#ECECEF] bg-white px-1 text-center text-xs font-semibold text-[#3A3A3C] outline-none disabled:bg-[#F7F7F8]" type="text" inputMode="numeric" pattern="[0-9]*" aria-label={`Credits for ${name}`} value={draft} disabled={saving} onChange={(event) => { if (/^\d*$/.test(event.target.value)) setDraft(event.target.value); }} onBlur={commit} onKeyDown={(event) => { if (event.key === 'Enter') event.currentTarget.blur(); }} />
+      <button className="h-9 w-9 border-0 bg-transparent text-base text-[#515154] hover:bg-[#F5F5F7] disabled:opacity-40" type="button" aria-label={`Add one credit to ${name}`} disabled={saving || !reasonReady} onClick={() => quickAdjust(1)}>+</button>
+    </div>
   </div>;
 }

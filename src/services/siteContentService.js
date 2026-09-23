@@ -25,6 +25,14 @@ export const siteContentService = {
     const { data } = await api.put('/admin/site-content/plans', { content });
     return data;
   },
+  async getEmailTemplates() {
+    const { data } = await api.get('/admin/site-content/email-templates');
+    return data;
+  },
+  async updateEmailTemplates(content) {
+    const { data } = await api.put('/admin/site-content/email-templates', { content });
+    return data;
+  },
   async uploadImage(file) {
     const form = new FormData();
     form.append('image', file);

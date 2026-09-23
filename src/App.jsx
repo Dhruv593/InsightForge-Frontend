@@ -18,6 +18,7 @@ import { AdminModelPage } from './pages/AdminModelPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { PlansPage } from './pages/PlansPage';
 import { AdminPlansPage } from './pages/AdminPlansPage';
+import { AdminEmailTemplatesPage } from './pages/AdminEmailTemplatesPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export default function App() {
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/admin/ai-model" element={<AdminModelPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/plans" element={<AdminPlansPage />} />
+            <Route path="/admin/email-templates" element={<AdminEmailTemplatesPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
