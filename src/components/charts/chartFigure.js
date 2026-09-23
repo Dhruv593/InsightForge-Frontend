@@ -16,11 +16,11 @@ export function chartFigure(chart) {
           plot_bgcolor: '#FFFFFF',
           colorway: COLORS,
           showlegend: traces.length > 1 || ['pie', 'donut'].includes(chart.chart_type),
-          legend: { orientation: 'h', x: 0, y: -0.22, font: { size: 9, color: '#6E6E73' } },
+          legend: { orientation: 'h', x: 0, y: -0.22, font: { size: 10, color: '#515154' } },
           font: { family: 'Plus Jakarta Sans, sans-serif', size: 10, color: '#6E6E73' },
           hoverlabel: { bgcolor: '#1D1D1F', bordercolor: '#1D1D1F', font: { color: '#FFFFFF', size: 11 } },
-          xaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? '#ECECEF' : 'rgba(0,0,0,0)', zerolinecolor: '#D2D2D7', tickfont: { size: 9 }, ...(horizontal ? metricAxis : {}) },
-          yaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? 'rgba(0,0,0,0)' : '#ECECEF', zerolinecolor: '#D2D2D7', tickfont: { size: 9 }, ...(!horizontal && !['histogram', 'heatmap', 'pie', 'donut', 'waterfall'].includes(chart.chart_type) ? metricAxis : {}) },
+          xaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? '#ECECEF' : 'rgba(0,0,0,0)', zerolinecolor: '#D2D2D7', tickfont: { size: 10 }, ...(horizontal ? metricAxis : {}) },
+          yaxis: { title: '', automargin: true, fixedrange: true, gridcolor: horizontal ? 'rgba(0,0,0,0)' : '#ECECEF', zerolinecolor: '#D2D2D7', tickfont: { size: 10 }, ...(!horizontal && !['histogram', 'heatmap', 'pie', 'donut', 'waterfall'].includes(chart.chart_type) ? metricAxis : {}) },
           barmode: chart.chart_type === 'stacked_bar' ? 'stack' : 'group',
           bargap: 0.38,
 
@@ -37,7 +37,7 @@ function buildTraces(chart) {
     return [{ type: 'heatmap', x: config.x.map(formatCategory), y: config.y.map(formatCategory), z: config.z, colorscale: [[0, '#EFF6FF'], [1, '#2563EB']], showscale: true, hovertemplate: '%{y} · %{x}<br>%{z}<extra></extra>' }];
   }
   if (['pie', 'donut'].includes(type) && series[0]) {
-    return [{ type: 'pie', labels: series[0].labels.map(formatCategory), values: series[0].values, hole: type === 'donut' ? 0.48 : 0, textinfo: 'label+percent', textfont: { size: 9 }, customdata: series[0].values.map((value) => formatMetric(value, metricHint)), hovertemplate: '%{label}<br>%{customdata} · %{percent}<extra></extra>', marker: { colors: COLORS } }];
+    return [{ type: 'pie', labels: series[0].labels.map(formatCategory), values: series[0].values, hole: type === 'donut' ? 0.48 : 0, sort: false, textinfo: 'percent', textfont: { size: 10 }, insidetextorientation: 'horizontal', customdata: series[0].values.map((value) => formatMetric(value, metricHint)), hovertemplate: '%{label}<br>%{customdata} · %{percent}<extra></extra>', marker: { colors: COLORS } }];
   }
   if (type === 'histogram' && series[0]) {
     return [{ type: 'histogram', x: series[0].values, marker: { color: COLORS[0] }, hovertemplate: 'Range %{x}<br>Count %{y}<extra></extra>' }];

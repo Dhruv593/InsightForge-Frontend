@@ -10,8 +10,10 @@ export function ConversationWorkspace({ conversation, dataset, messages, runs, r
   const [selectedRunId, setSelectedRunId] = useState(null);
   const [questionsOpen, setQuestionsOpen] = useState(false);
   const [queryDraft, setQueryDraft] = useState(null);
+  const [headerCompact, setHeaderCompact] = useState(false);
   const resultScrollRef = useRef(null);
   const newestRunRef = useRef(null);
+  const lastScrollTopRef = useRef(0);
 
   const questions = useMemo(() => {
     const messagesByRun = Object.fromEntries(messages.filter((message) => message.role === 'user' && message.analysis_run_id).map((message) => [message.analysis_run_id, message]));
@@ -56,14 +58,23 @@ export function ConversationWorkspace({ conversation, dataset, messages, runs, r
     else nextParams.delete('run');
     setSearchParams(nextParams, { replace: true });
     setQuestionsOpen(false);
+    setHeaderCompact(false);
+    lastScrollTopRef.current = 0;
     window.requestAnimationFrame(() => resultScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  function handleResultScroll(event) {
+    const nextScrollTop = event.currentTarget.scrollTop;
+    if (nextScrollTop <= 16 || nextScrollTop < lastScrollTopRef.current) setHeaderCompact(false);
+    else if (nextScrollTop > 64 && nextScrollTop > lastScrollTopRef.current) setHeaderCompact(true);
+    lastScrollTopRef.current = nextScrollTop;
   }
 
   return (
     <section className="flex h-full min-h-0 overflow-hidden bg-[#F5F5F7]">
       <div className="grid min-w-0 flex-1 grid-rows-[auto_1fr_auto] overflow-hidden">
-        <AnalysisHeader conversation={conversation} dataset={dataset} profileComplete={profileComplete} result={selectedResult} onRename={onRename} onDelete={onDelete} onOpenQuestions={() => setQuestionsOpen(true)} />
-        <div className="min-h-0 overflow-y-auto" ref={resultScrollRef}>
+        <AnalysisHeader compact={headerCompact} conversation={conversation} dataset={dataset} profileComplete={profileComplete} result={selectedResult} onRename={onRename} onDelete={onDelete} onOpenQuestions={() => setQuestionsOpen(true)} />
+        <div className="min-h-0 overflow-y-auto" ref={resultScrollRef} onScroll={handleResultScroll}>
           <AnalysisCanvas question={selectedQuestion} result={selectedResult} savedAnswer={savedAnswer} progress={selectedIsActiveSubmission ? analysisProgress : null} loading={loading} onRetry={onRetry} onCancel={onCancel} onEdit={(query) => setQueryDraft({ query, id: Date.now() })} />
         </div>
         <QueryBox disabled={loading} submitting={querySubmitting} error={queryError} profileRequired={!profileComplete} insufficientCredits={credits < 1} onProfile={onProfile} onSubmit={onQuery} draft={queryDraft} />
