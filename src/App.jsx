@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { AuthPage } from './pages/AuthPage';
@@ -19,6 +19,7 @@ import { AdminUsersPage } from './pages/AdminUsersPage';
 import { PlansPage } from './pages/PlansPage';
 import { AdminPlansPage } from './pages/AdminPlansPage';
 import { AdminEmailTemplatesPage } from './pages/AdminEmailTemplatesPage';
+import { AdminLegalPagesPage } from './pages/AdminLegalPagesPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export default function App() {
@@ -52,6 +53,8 @@ export default function App() {
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/plans" element={<AdminPlansPage />} />
             <Route path="/admin/email-templates" element={<AdminEmailTemplatesPage />} />
+            <Route path="/admin/legal-pages" element={<Navigate to="/admin/legal-pages/privacy" replace />} />
+            <Route path="/admin/legal-pages/:page" element={<AdminLegalPagesPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -90,11 +90,11 @@ export function GoogleSignIn() {
     return () => { active = false; window.clearTimeout(slowStartTimer); };
   }, [attempt, googleLogin, navigate, showError, success]);
 
-  return <div className="mb-6">
+  return <div className="mb-5">
     <div ref={container} className={`flex min-h-11 justify-center ${status !== 'ready' ? 'hidden' : ''}`} />
     {status === 'loading' && <div role="status" className="flex min-h-11 items-center justify-center gap-2 text-center text-sm text-slate-500"><span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600" aria-hidden="true" /><span>{slowStart ? 'Starting the sign-in service. This can take up to a minute on free hosting…' : 'Preparing Google sign-in…'}</span></div>}
     {status === 'signing-in' && <p role="status" className="text-center text-sm text-slate-500">Signing you in…</p>}
     {status === 'error' && <button type="button" className="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm hover:bg-slate-50" onClick={() => { setStatus('loading'); setAttempt((value) => value + 1); }}>Retry Google sign-in</button>}
-    <div className="mt-6 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />or continue with email<span className="h-px flex-1 bg-slate-200" /></div>
+    <div className="mt-5 flex items-center gap-3 text-xs text-slate-400"><span className="h-px flex-1 bg-slate-200" />or continue with email<span className="h-px flex-1 bg-slate-200" /></div>
   </div>;
 }

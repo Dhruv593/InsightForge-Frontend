@@ -13,6 +13,10 @@ export const siteContentService = {
     const { data } = await api.put('/admin/site-content/landing', { content });
     return data;
   },
+  async submitContact(payload) {
+    const { data } = await api.post('/site-content/contact', payload);
+    return data;
+  },
   async getPlans() {
     const { data } = await api.get('/site-content/plans');
     return data;
@@ -23,6 +27,18 @@ export const siteContentService = {
   },
   async updatePlans(content) {
     const { data } = await api.put('/admin/site-content/plans', { content });
+    return data;
+  },
+  async getLegal() {
+    const { data } = await api.get('/site-content/legal');
+    return data;
+  },
+  async getAdminLegal() {
+    const { data } = await api.get('/admin/site-content/legal');
+    return data;
+  },
+  async updateLegal(content) {
+    const { data } = await api.put('/admin/site-content/legal', { content });
     return data;
   },
   async getEmailTemplates() {
@@ -37,6 +53,12 @@ export const siteContentService = {
     const form = new FormData();
     form.append('image', file);
     const { data } = await api.post('/admin/site-content/images', form);
+    return data;
+  },
+  async uploadVideo(file) {
+    const form = new FormData();
+    form.append('video', file);
+    const { data } = await api.post('/admin/site-content/videos', form);
     return data;
   },
   async listBlogs() {

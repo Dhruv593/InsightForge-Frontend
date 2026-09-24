@@ -16,15 +16,15 @@
 }
 
 @keyframes hero-flow-beam {
-  0%, 10% { opacity: 0.25; transform: scaleX(0); }
-  72%, 88% { opacity: 1; transform: scaleX(1); }
-  100% { opacity: 0; transform: scaleX(1); }
+  0%, 8% { opacity: 0.2; transform: scaleX(0); }
+  68%, 84% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0.2; transform: scaleX(0); }
 }
 
 @keyframes hero-flow-dot {
-  0%, 10% { left: 16.67%; opacity: 0; }
-  18% { opacity: 1; }
-  72%, 88% { left: calc(83.33% - 7px); opacity: 1; }
+  0%, 8% { left: 16.67%; opacity: 0; }
+  16% { opacity: 1; }
+  72%, 84% { left: calc(83.33% - 7px); opacity: 1; }
   100% { left: calc(83.33% - 7px); opacity: 0; }
 }
 
@@ -71,11 +71,12 @@
   .voice-recording-bars > span:nth-child(4) { height: 10px; animation-delay: -150ms; }
   .query-composer { padding-bottom: max(0.625rem, env(safe-area-inset-bottom)); }
   .landing-page, .dashboard-shell { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; font-family: inherit; }
-  .hero-flow-beam { animation: hero-flow-beam 5.2s ease-in-out infinite; }
-  .hero-flow-dot { animation: hero-flow-dot 5.2s ease-in-out infinite; }
-  .hero-flow-node { animation: hero-flow-node 5.2s ease-in-out infinite; }
-  .hero-flow-delay-1 { animation-delay: 1.45s; }
-  .hero-flow-delay-2 { animation-delay: 2.9s; }
+  .hero-flow-beam { animation: hero-flow-beam 6.4s ease-in-out infinite; }
+  .hero-flow-dot { animation: hero-flow-dot 6.4s ease-in-out infinite; }
+  .hero-flow-node { animation: hero-flow-node 6.4s ease-in-out infinite; }
+  .hero-flow-delay-1 { animation-delay: 1.8s; }
+  .hero-flow-delay-2 { animation-delay: 3.6s; }
+  .product-preview-image { animation: preview-reveal 300ms ease-out; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -83,6 +84,7 @@
   .hero-flow-beam { animation: none; opacity: 1; transform: scaleX(1); }
   .hero-flow-dot { display: none; }
   .hero-flow-node { animation: none; }
+  .product-preview-image { animation: none; }
 }
 
 @keyframes voice-recording {

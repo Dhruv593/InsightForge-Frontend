@@ -8,7 +8,7 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
   const running = run.status === 'pending' || run.status === 'running' || Boolean(progress);
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-5 sm:px-6 sm:py-6">
+    <div className="mx-auto grid w-full max-w-6xl gap-5 px-4 pb-5 pt-4 sm:px-6 sm:py-6">
       <section className="rounded-xl border border-[#E4E2F4] bg-[#F7F6FF] px-4 py-3" aria-label="Active question">
         <p className="m-0 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[#30303A]">{question.query}</p>
       </section>

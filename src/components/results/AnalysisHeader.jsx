@@ -37,7 +37,7 @@ export function AnalysisHeader({ conversation, dataset, profileComplete, result,
   }
 
   return (
-    <header className="border-b border-[#E5E5EA] bg-white px-3 py-1.5 sm:px-5 sm:py-2.5">
+    <header className="border-b border-[#E5E5EA] bg-white px-2.5 py-0.5 sm:px-5 sm:py-2.5">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="min-w-0 flex-1">
           <h1 className="m-0 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1D1D1F] sm:text-base" title={conversation.title}>{conversation.title}</h1>
