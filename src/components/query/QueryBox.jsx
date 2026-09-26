@@ -115,16 +115,17 @@ export function QueryBox({ disabled, submitting, error, profileRequired, insuffi
         {!profileRequired && insufficientCredits && <div className="mb-3 flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2.5 text-xs text-amber-900"><span>You have no question credits left.</span><button className="shrink-0 border-0 bg-transparent p-0 font-semibold text-brand-600 hover:text-brand-700" type="button" onClick={() => navigate('/plans')}>Get more credits</button></div>}
         {error && <div className="mb-3"><ErrorMessage message={error} /></div>}
         {voiceError && <p className="mb-2 text-xs text-[#6E6E73]" role="status">{voiceError}</p>}
-        <div className="flex min-h-13 flex-nowrap items-end gap-1 rounded-2xl border border-[#DADAE0] bg-white px-2 py-1 shadow-[0_2px_12px_rgba(0,0,0,0.045)] transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 sm:gap-2 sm:py-1.5 sm:pl-5">
+        <div className={`flex min-h-13 flex-nowrap items-end gap-1 rounded-2xl border bg-white px-2 py-1 shadow-[0_2px_12px_rgba(0,0,0,0.045)] transition focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-100 sm:gap-2 sm:py-1.5 sm:pl-5 ${submitting ? 'border-indigo-300 ring-2 ring-indigo-100' : 'border-[#DADAE0]'}`} aria-busy={submitting}>
           <label className="sr-only" htmlFor="analysis-query">Ask Tatparya about this dataset</label>
           <textarea ref={queryRef} className="custom-scrollbar block max-h-[136px] min-h-10 min-w-0 flex-1 resize-none overflow-y-hidden border-0 bg-transparent px-1 py-2 text-sm leading-6 text-[#1D1D1F] outline-none placeholder:text-[#86868B] disabled:text-[#86868B] sm:px-0" id="analysis-query" aria-describedby="analysis-query-help analysis-ai-note" value={query} onChange={(event) => setQuery(event.target.value)} onFocus={() => setQueryFocused(true)} onBlur={() => setQueryFocused(false)} onKeyDown={handleKeyDown} maxLength={5000} rows={1} placeholder={insufficientCredits ? 'Get more credits to ask another question' : 'Ask Tatparya…'} disabled={disabled || profileRequired || insufficientCredits || submitting} />
           <span className="sr-only" role="status">{listening ? 'Listening. Select the microphone again to stop.' : ''}</span>
           <button className={`ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full border-0 transition sm:ml-0 ${listening ? 'bg-indigo-50 text-[#4338CA] ring-1 ring-indigo-200' : 'bg-transparent text-[#515154] hover:bg-[#F2F2F4]'}`} type="button" aria-label={listening ? 'Stop voice input' : 'Use voice input'} aria-pressed={listening} onClick={startVoiceInput} disabled={disabled || profileRequired || insufficientCredits || submitting}><MicIcon listening={listening} /></button>
-          <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border-0 bg-[#4338CA] text-white transition hover:bg-[#3730A3] disabled:cursor-not-allowed disabled:bg-[#C7C7D1]" type="submit" aria-label={submitting ? 'Analyzing question' : 'Send question'} disabled={submitting || disabled || profileRequired || insufficientCredits || !query.trim()}>{submitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" /> : <SendIcon />}</button>
+          <button className="grid h-11 w-11 shrink-0 place-items-center rounded-full border-0 bg-[#4338CA] text-white transition hover:bg-[#3730A3] disabled:cursor-not-allowed disabled:bg-[#C7C7D1]" type="submit" aria-label={submitting ? 'Submitting question' : 'Send question'} disabled={submitting || disabled || profileRequired || insufficientCredits || !query.trim()}>{submitting ? <ProcessingDots /> : <SendIcon />}</button>
         </div>
-        <div className="mt-1 flex min-h-4 flex-col items-center justify-center gap-x-2 px-2 text-center text-[9px] leading-3.5 min-[360px]:text-[10px] min-[360px]:leading-4 sm:flex-row">
-          <span id="analysis-query-help" className={`text-[#6E6E73] transition-opacity ${queryFocused && !disabled && !profileRequired && !insufficientCredits ? 'opacity-100' : 'hidden opacity-0 sm:inline'}`}>Enter to send · Shift + Enter for a new line</span>
-          <span id="analysis-ai-note" className="text-[#6E6E73]">Tatparya uses AI and may make mistakes. Verify important results.</span>
+        <div className="mt-1 grid min-h-4 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start px-2 text-[9px] leading-3.5 min-[360px]:text-[10px] min-[360px]:leading-4">
+          <span aria-hidden="true" />
+          <span id="analysis-ai-note" className="col-start-2 max-w-full text-center text-[#6E6E73]">Tatparya uses AI and may make mistakes. Verify important results.</span>
+          <span id="analysis-query-help" className={`hidden justify-self-end whitespace-nowrap pl-3 text-right text-[#6E6E73] transition-opacity lg:block ${queryFocused && !disabled && !profileRequired && !insufficientCredits ? 'opacity-100' : 'invisible opacity-0'}`}>Enter to send · Shift + Enter for a new line</span>
         </div>
       </div>
     </form>
@@ -133,6 +134,10 @@ export function QueryBox({ disabled, submitting, error, profileRequired, insuffi
 
 function SendIcon() {
   return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>;
+}
+
+function ProcessingDots() {
+  return <span className="analysis-processing-dots" aria-hidden="true"><span /><span /><span /></span>;
 }
 
 function MicIcon({ listening }) {

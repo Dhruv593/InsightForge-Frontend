@@ -11,15 +11,17 @@ export function AdminDashboardPage() {
   const [monitoring, setMonitoring] = useState(null);
   const [blogs, setBlogs] = useState(null);
   const [legal, setLegal] = useState(null);
+  const [contacts, setContacts] = useState(null);
 
   useEffect(() => {
     let active = true;
-    Promise.allSettled([siteContentService.getAdminLanding(), monitoringService.overview(), siteContentService.listAdminBlogs(), siteContentService.getAdminLegal()]).then(([contentResult, monitoringResult, blogsResult, legalResult]) => {
+    Promise.allSettled([siteContentService.getAdminLanding(), monitoringService.overview(), siteContentService.listAdminBlogs(), siteContentService.getAdminLegal(), siteContentService.listContactInquiries()]).then(([contentResult, monitoringResult, blogsResult, legalResult, contactsResult]) => {
       if (!active) return;
       if (contentResult.status === 'fulfilled') setContent(contentResult.value);
       if (monitoringResult.status === 'fulfilled') setMonitoring(monitoringResult.value);
       if (blogsResult.status === 'fulfilled') setBlogs(blogsResult.value);
       if (legalResult.status === 'fulfilled') setLegal(legalResult.value);
+      if (contactsResult.status === 'fulfilled') setContacts(contactsResult.value);
     });
     return () => { active = false; };
   }, []);
@@ -29,11 +31,12 @@ export function AdminDashboardPage() {
   return <AdminShell><div className="grid w-full gap-7">
     <header><p className="mb-2 text-xs font-semibold text-brand-600">Overview</p><h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-[#1D1D1F] sm:text-3xl">Welcome back, {user.name.split(' ')[0]}</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Manage Tatparya’s public content and keep an eye on system activity.</p></header>
 
-    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       <Metric label="Landing page" value={content?.version ? 'Published' : 'Not published'} detail={content?.version ? `Version ${content.version}` : 'Using default content'} />
       <Metric label="Blog posts" value={blogs?.total ?? '—'} detail={`${blogs?.items?.filter((post) => post.status === 'published').length ?? 0} published`} />
       <Metric label="Registered users" value={monitoring?.summary?.total_users ?? '—'} detail="All accounts" />
       <Metric label="Active analyses" value={(monitoring?.summary?.queued_analyses ?? 0) + (monitoring?.summary?.running_analyses ?? 0)} detail="Queued and running" />
+      <Metric label="Contact inquiries" value={contacts?.total ?? '—'} detail={`${contacts?.counts?.new ?? 0} new`} tone={(contacts?.counts?.new ?? 0) > 0 ? 'warning' : 'default'} />
     </section>
 
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
@@ -52,6 +55,9 @@ export function AdminDashboardPage() {
       </DashboardCard>
       <DashboardCard title="Email templates" description="Manage verification, password, payment, credit, and account notification copy.">
         <Link className="inline-flex rounded-lg border border-[#D2D2D7] bg-white px-4 py-2.5 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to="/admin/email-templates">Edit templates</Link>
+      </DashboardCard>
+      <DashboardCard title="Contact inquiries" description="Review landing-page messages, track their status, and reply by email.">
+        <Link className="inline-flex rounded-lg border border-[#D2D2D7] bg-white px-4 py-2.5 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to="/admin/contacts">Open inbox{contacts?.counts?.new ? ` · ${contacts.counts.new} new` : ''}</Link>
       </DashboardCard>
     </section>
 

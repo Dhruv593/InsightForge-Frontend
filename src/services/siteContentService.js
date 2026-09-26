@@ -17,6 +17,18 @@ export const siteContentService = {
     const { data } = await api.post('/site-content/contact', payload);
     return data;
   },
+  async listContactInquiries(status = '') {
+    const { data } = await api.get('/admin/contact-inquiries', { params: status ? { status } : {} });
+    return data;
+  },
+  async updateContactInquiry(id, status) {
+    const { data } = await api.patch(`/admin/contact-inquiries/${id}`, { status });
+    return data;
+  },
+  async replyToContactInquiry(id, message) {
+    const { data } = await api.post(`/admin/contact-inquiries/${id}/reply`, { message });
+    return data;
+  },
   async getPlans() {
     const { data } = await api.get('/site-content/plans');
     return data;

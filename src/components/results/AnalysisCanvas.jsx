@@ -20,10 +20,13 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
 function RunningState({ progress, onCancel }) {
   return (
     <section className="flex min-h-72 items-center justify-center" role="status" aria-live="polite">
-      <div className="w-full max-w-md rounded-xl border border-[#E5E5EA] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.025)]">
-        <div className="mb-4 flex items-center gap-3"><span className="relative flex h-2.5 w-2.5"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-40" /><span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-indigo-600" /></span><div><h2 className="m-0 text-sm font-semibold text-[#1D1D1F]">{progress?.label || 'Analyzing your data…'}</h2><p className="mb-0 mt-1 text-xs leading-5 text-[#6E6E73]">{progress?.detail || 'Preparing analysis and calculating verified evidence.'}</p></div></div>
-        <div className="h-1 overflow-hidden rounded-full bg-[#ECECEF]"><div className="h-full w-2/5 animate-pulse rounded-full bg-indigo-600" /></div>
-        <button className="mt-4 border-0 bg-transparent p-0 text-xs font-medium text-[#6E6E73] hover:text-red-600" type="button" onClick={onCancel}>Cancel analysis</button>
+      <div className="w-full max-w-md overflow-hidden rounded-2xl border border-[#E1E1E5] bg-white shadow-[0_10px_35px_rgba(30,30,50,0.055)]">
+        <div className="flex items-start gap-3.5 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600"><span className="analysis-processing-dots analysis-processing-dots-dark" aria-hidden="true"><span /><span /><span /></span></span>
+          <div className="min-w-0 pt-0.5"><h2 className="m-0 text-sm font-semibold text-[#1D1D1F]">{progress?.label || 'Analyzing your data…'}</h2><p className="mb-0 mt-1 text-xs leading-5 text-[#6E6E73]">{progress?.detail || 'Preparing analysis and calculating verified evidence.'}</p></div>
+        </div>
+        <div className="mx-5 h-1 overflow-hidden rounded-full bg-[#ECECEF] sm:mx-6"><div className="analysis-progress-sweep h-full w-1/3 rounded-full bg-gradient-to-r from-indigo-400 via-indigo-600 to-indigo-400" /></div>
+        <div className="mt-4 flex items-center justify-between border-t border-[#F0F0F2] px-5 py-3 sm:px-6"><span className="text-[10px] text-[#86868B]">You can leave this page while Tatparya works.</span><button className="border-0 bg-transparent p-0 text-xs font-medium text-[#6E6E73] hover:text-red-600" type="button" onClick={onCancel}>Cancel</button></div>
       </div>
     </section>
   );

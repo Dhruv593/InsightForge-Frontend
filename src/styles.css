@@ -6,13 +6,13 @@
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  from { opacity: 0; transform: translateY(-14px) scale(0.92); filter: blur(4px); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes toast-out {
   from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.94); }
 }
 
 @keyframes hero-flow-beam {
@@ -34,6 +34,16 @@
   34% { border-color: #e2e8f0; box-shadow: 0 1px 2px rgb(15 23 42 / 0.06); color: #475569; transform: translateY(0); }
 }
 
+@keyframes analysis-dot {
+  0%, 60%, 100% { opacity: 0.42; transform: translateY(0) scale(0.82); }
+  30% { opacity: 1; transform: translateY(-2px) scale(1); }
+}
+
+@keyframes analysis-progress-sweep {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(310%); }
+}
+
 @theme {
   --font-sans: 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -46,7 +56,22 @@
 
 @layer base {
   * { box-sizing: border-box; }
+  * { scrollbar-width: thin; scrollbar-color: #B8B8BE transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    min-height: 42px;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: #B8B8BE;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: #9E9EA5; background-clip: padding-box; }
+  *::-webkit-scrollbar-thumb:active { background: #85858D; background-clip: padding-box; }
+  *::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+  *::-webkit-scrollbar-corner { background: transparent; }
   html { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; background: #F5F5F7; }
+  html.landing-smooth-scroll { scroll-behavior: smooth; scroll-padding-top: 6rem; }
   body, #root { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; }
   body { @apply m-0 min-h-screen font-sans antialiased; background: #F5F5F7; color: #1D1D1F; }
   button, input, textarea, select { font: inherit; }
@@ -57,6 +82,9 @@
 }
 
 @layer components {
+  .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #B8B8BE transparent; }
+  .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { border-width: 2px; }
   .dashboard-shell[data-onboarding-step='upload'] [data-tour='upload-dataset'],
   .dashboard-shell[data-onboarding-step='profile'] [data-tour='profile-dataset'],
   .dashboard-shell[data-onboarding-step='analysis'] [data-tour='new-analysis'] {
@@ -69,6 +97,13 @@
   .voice-recording-bars > span:nth-child(2) { height: 18px; animation-delay: -300ms; }
   .voice-recording-bars > span:nth-child(3) { height: 16px; animation-delay: -600ms; }
   .voice-recording-bars > span:nth-child(4) { height: 10px; animation-delay: -150ms; }
+  .analysis-processing-dots { display: inline-flex; align-items: center; justify-content: center; gap: 2px; width: 18px; height: 18px; }
+  .analysis-processing-dots > span { width: 3px; height: 3px; border-radius: 999px; background: currentColor; animation: analysis-dot 1.05s ease-in-out infinite; }
+  .analysis-processing-dots > span:nth-child(2) { animation-delay: 140ms; }
+  .analysis-processing-dots > span:nth-child(3) { animation-delay: 280ms; }
+  .analysis-processing-dots-dark { width: 22px; gap: 3px; }
+  .analysis-processing-dots-dark > span { width: 4px; height: 4px; }
+  .analysis-progress-sweep { animation: analysis-progress-sweep 1.6s ease-in-out infinite; }
   .query-composer { padding-bottom: max(0.625rem, env(safe-area-inset-bottom)); }
   .landing-page, .dashboard-shell { width: 100%; min-width: 0; max-width: 100%; overflow-x: hidden; font-family: inherit; }
   .hero-flow-beam { animation: hero-flow-beam 6.4s ease-in-out infinite; }
@@ -80,7 +115,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html.landing-smooth-scroll { scroll-behavior: auto; }
   .voice-recording-bars > span { animation: none; }
+  .analysis-processing-dots > span { animation: none; opacity: 0.85; transform: none; }
+  .analysis-progress-sweep { width: 60%; animation: none; transform: none; }
   .hero-flow-beam { animation: none; opacity: 1; transform: scaleX(1); }
   .hero-flow-dot { display: none; }
   .hero-flow-node { animation: none; }

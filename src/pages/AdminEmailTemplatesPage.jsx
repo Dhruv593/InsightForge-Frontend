@@ -13,6 +13,7 @@ const templateLabels = {
   payment_confirmation: ['Credit purchase', 'Sent after Razorpay confirms payment and credits are added.'],
   credit_adjusted: ['Credit adjustment', 'Sent after an administrator manually changes a balance.'],
   account_deleted: ['Account deletion', 'Sent after the account and its stored application data are deleted.'],
+  contact_reply: ['Contact reply', 'Sent when an administrator replies to a landing-page contact inquiry.'],
 };
 
 export function AdminEmailTemplatesPage() {

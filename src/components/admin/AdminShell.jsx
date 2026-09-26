@@ -11,6 +11,7 @@ const navigation = [
   { label: 'Legal pages', to: '/admin/legal-pages', icon: 'legal' },
   { label: 'AI model', to: '/admin/ai-model', icon: 'model' },
   { label: 'Email templates', to: '/admin/email-templates', icon: 'email' },
+  { label: 'Contact inquiries', to: '/admin/contacts', icon: 'contact' },
   { label: 'Users & access', to: '/admin/users', icon: 'users' },
   { label: 'Monitoring', to: '/monitoring', icon: 'activity' },
   { label: 'Account settings', to: '/account', icon: 'user' },
@@ -35,7 +36,7 @@ export function AdminShell({ children }) {
             <h1 className="mb-0 mt-2 text-lg font-semibold tracking-[-0.025em] text-[#1D1D1F]">Admin Dashboard</h1>
             <p className="mb-0 mt-1 text-xs leading-5 text-[#86868B]">Manage content and system operations.</p>
           </div>
-          <nav className={`${mobileMenuOpen ? 'grid' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-7.5rem)] gap-1 overflow-y-auto border-b border-[#E1E1E5] bg-white px-3 py-3 shadow-xl lg:static lg:mt-7 lg:grid lg:max-h-none lg:overflow-visible lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none`} id="admin-navigation" aria-label="Admin navigation">
+          <nav className={`${mobileMenuOpen ? 'grid' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-7.5rem)] gap-1 overflow-y-auto border-b border-[#E1E1E5] bg-white px-3 py-3 shadow-xl lg:static lg:mb-4 lg:mt-7 lg:grid lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none`} id="admin-navigation" aria-label="Admin navigation">
             {navigation.map((item) => <Fragment key={item.to}>
               <NavLink className={({ isActive }) => `inline-flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-xs font-medium transition lg:w-full ${isActive ? 'bg-brand-50 text-brand-700' : 'text-[#515154] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'}`} end={item.to === '/admin'} to={item.to} onClick={() => setMobileMenuOpen(false)}><AdminIcon name={item.icon} /><span>{item.label}</span></NavLink>
               {item.to === '/admin/landing-content' && editingLanding && <SubNavigation items={landingSections} base="/admin/landing-content" label="Landing page sections" onNavigate={() => setMobileMenuOpen(false)} />}
@@ -70,6 +71,7 @@ function AdminIcon({ name }) {
     user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
     users: <><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.5" /><path d="M3 20a6 6 0 0 1 12 0M14 15a5 5 0 0 1 7 4.5" /></>,
     email: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m4 7 8 6 8-6" /></>,
+    contact: <><path d="M4 5h16v11H8l-4 4z" /><path d="M8 9h8M8 12h5" /></>,
     legal: <><path d="M6 3h9l3 3v15H6z" /><path d="M14 3v4h4M9 11h6M9 15h6" /></>,
     menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
     back: <><path d="m10 17-5-5 5-5" /><path d="M5 12h14" /></>,

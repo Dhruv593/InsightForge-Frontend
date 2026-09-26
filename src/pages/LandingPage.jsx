@@ -1,23 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { BrandLogo } from '../components/common/BrandLogo';
 import { defaultLandingContent, normalizeLandingContent } from '../content/landingContent';
 import { siteContentService } from '../services/siteContentService';
-import { getApiError } from '../services/api';
 import { Seo } from '../components/common/Seo';
-
-const heading = 'm-0 text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] sm:text-5xl';
-const palettes = {
-  light: {
-    section: 'bg-white text-slate-950', heading: 'text-slate-950', accent: 'text-slate-500', body: 'text-slate-600', muted: 'text-slate-500', border: 'border-slate-200', surface: 'border-slate-200 bg-[#F7F9FC]', card: 'border-slate-200 bg-white', button: 'bg-slate-950 text-white hover:bg-slate-800', secondaryButton: 'border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
-  },
-  dark: {
-    section: 'bg-[#0E1726] text-white', heading: 'text-white', accent: 'text-slate-400', body: 'text-slate-300', muted: 'text-slate-400', border: 'border-slate-700/80', surface: 'border-slate-700/80 bg-[#121E31]', card: 'border-slate-700/80 bg-[#121E31]', button: 'bg-white text-slate-950 hover:bg-slate-100', secondaryButton: 'border-slate-600 bg-white/5 text-white hover:bg-white/10',
-  },
-};
-
-const paletteFor = (theme) => palettes[theme === 'dark' ? 'dark' : 'light'];
+import { ContactSection } from '../components/landing/ContactSection';
+import { ProductWalkthrough } from '../components/landing/ProductWalkthrough';
+import { Arrow, CapabilityIcon, ContentLink, HeroProcessGraphic } from '../components/landing/LandingElements';
+import { landingHeading as heading, paletteFor } from '../components/landing/landingStyles';
 
 export function LandingPage() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -25,8 +16,12 @@ export function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [navbarScrolled, setNavbarScrolled] = useState(false);
-  const [contactInView, setContactInView] = useState(false);
   const [content, setContent] = useState(defaultLandingContent);
+
+  useEffect(() => {
+    document.documentElement.classList.add('landing-smooth-scroll');
+    return () => document.documentElement.classList.remove('landing-smooth-scroll');
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,18 +54,6 @@ export function LandingPage() {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = previousOverflow; };
   }, [menuOpen]);
-
-  useEffect(() => {
-    if (!content.contact.enabled) {
-      setContactInView(false);
-      return undefined;
-    }
-    const section = document.getElementById('contact');
-    if (!section || !globalThis.IntersectionObserver) return undefined;
-    const observer = new globalThis.IntersectionObserver(([entry]) => setContactInView(entry.isIntersecting), { threshold: 0.05 });
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [content.contact.enabled]);
 
   const isAdminPreview = user?.is_admin && searchParams.get('preview') === '1';
   if (!isLoading && isAuthenticated && !isAdminPreview) return <Navigate to="/dashboard" replace />;
@@ -155,114 +138,6 @@ export function LandingPage() {
     </main>
 
     {content.footer.enabled && <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-6 px-6 py-10 text-sm text-slate-500 sm:flex-row sm:items-center lg:px-12"><Link className="inline-flex min-h-11 items-center" to="/" aria-label="Tatparya home"><BrandLogo className="h-9 w-auto max-w-[160px]" /></Link><div className="grid gap-4 sm:justify-items-end"><div className="flex flex-wrap gap-x-5 gap-y-3"><a href={content.footer.preview_link.href}>{content.footer.preview_link.label}</a>{content.blog?.enabled !== false && <Link to="/blog">Blog</Link>}<Link to="/login">{content.footer.login_label}</Link></div><div className="flex flex-wrap gap-x-5 gap-y-3 text-xs"><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><span>© {new Date().getFullYear()} {content.footer.copyright_name}</span></div></div></div></footer>}
-    <button className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-30 grid h-11 w-11 place-items-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg shadow-slate-900/15 transition duration-200 hover:-translate-y-1 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${showBackToTop && !contactInView ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} type="button" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6" /></svg></button>
+    <button className={`fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-5 z-30 grid h-11 w-11 place-items-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-lg shadow-slate-900/15 transition duration-200 hover:-translate-y-1 hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${showBackToTop ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`} type="button" aria-label="Back to top" onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' })}><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 15 6-6 6 6" /></svg></button>
   </div>;
-}
-
-function ContactSection({ content, order }) {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '', website: '' });
-  const [status, setStatus] = useState({ type: '', message: '' });
-  const [submitting, setSubmitting] = useState(false);
-
-  function update(event) {
-    const { name, value } = event.target;
-    setForm((current) => ({ ...current, [name]: value }));
-    if (status.type === 'error') setStatus({ type: '', message: '' });
-  }
-
-  async function submit(event) {
-    event.preventDefault();
-    setSubmitting(true);
-    setStatus({ type: '', message: '' });
-    try {
-      const response = await siteContentService.submitContact(form);
-      setForm({ name: '', email: '', subject: '', message: '', website: '' });
-      setStatus({ type: 'success', message: response.message || content.success_message });
-    } catch (error) {
-      setStatus({ type: 'error', message: getApiError(error, 'Your message could not be sent. Please try again.').message });
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  const palette = paletteFor(content.theme);
-  return <section id="contact" className={`scroll-mt-20 border-t ${palette.border} ${palette.section}`} style={{ order }}><div className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:gap-10 sm:px-6 sm:py-20 lg:grid-cols-12 lg:px-12 lg:py-24">
-    <div className="lg:col-span-5"><h2 className={`${heading} ${palette.heading}`}>{content.title}<br /><span className={palette.accent}>{content.accent}</span></h2><p className={`mb-0 mt-5 max-w-lg text-base leading-7 ${palette.body}`}>{content.description}</p><dl className="mt-8 grid gap-3 text-sm"><ContactDetail label="Email" value={content.email} href={`mailto:${content.email}`} palette={palette} /><ContactDetail label="Phone" value={content.phone} palette={palette} /><ContactDetail label="Location" value={content.address} palette={palette} /></dl></div>
-    <form className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_20px_55px_-42px_rgba(15,23,42,0.4)] sm:p-7 lg:col-span-7" onSubmit={submit}><div><h3 className="m-0 text-xl font-semibold tracking-[-0.025em] text-slate-950">{content.form_title}</h3><p className="mb-0 mt-1 text-xs leading-5 text-slate-500">We’ll reply to the email address you provide.</p></div><div className="grid gap-4 sm:grid-cols-2"><ContactField label="Name" name="name" value={form.name} onChange={update} autoComplete="name" /><ContactField label="Email" name="email" type="email" value={form.email} onChange={update} autoComplete="email" /></div><ContactField label="Subject (optional)" name="subject" value={form.subject} onChange={update} required={false} /><label className="grid gap-2 text-sm font-medium text-slate-700">Message<textarea className="min-h-32 resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-normal leading-6 outline-none transition hover:border-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100" name="message" value={form.message} onChange={update} required minLength={10} maxLength={5000} /></label><label className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">Website<input name="website" value={form.website} onChange={update} tabIndex="-1" autoComplete="off" /></label>{status.message && <p className={`m-0 rounded-xl px-4 py-3 text-sm ${status.type === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`} role={status.type === 'error' ? 'alert' : 'status'}>{status.message}</p>}<button className="inline-flex min-h-12 items-center justify-center rounded-xl bg-slate-950 px-6 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:justify-self-start" type="submit" disabled={submitting}>{submitting ? 'Sending…' : content.submit_label}</button></form>
-  </div></section>;
-}
-
-function ContactDetail({ label, value, href, palette }) {
-  const Value = href ? 'a' : 'span';
-  return <div className={`grid grid-cols-[72px_minmax(0,1fr)] gap-3 border-b py-3 ${palette.border}`}><dt className={`text-xs font-semibold uppercase tracking-[0.08em] ${palette.muted}`}>{label}</dt><dd className={`m-0 min-w-0 break-words font-medium ${palette.body}`}><Value href={href} className={palette.heading}>{value}</Value></dd></div>;
-}
-
-function ContactField({ label, name, value, onChange, type = 'text', autoComplete, required = true }) {
-  return <label className="grid gap-2 text-sm font-medium text-slate-700">{label}<input className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm font-normal outline-none transition hover:border-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-100" name={name} type={type} value={value} onChange={onChange} autoComplete={autoComplete} required={required} maxLength={160} /></label>;
-}
-
-function ProductWalkthrough({ content, order }) {
-  const [active, setActive] = useState(0);
-  const dialog = useRef(null);
-  const steps = content.steps;
-  const stage = steps[active] ?? steps[0];
-
-  const palette = paletteFor(content.theme);
-  return <section id="preview" className={`scroll-mt-24 border-b ${palette.border} ${palette.section}`} style={{ order }}><div className="mx-auto max-w-[1400px] px-4 py-14 sm:px-6 sm:py-20 lg:px-12 lg:py-28">
-    <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-12 lg:items-end"><h2 className={`${heading} lg:col-span-7 ${palette.heading}`}>{content.title}<br /><span className={palette.accent}>{content.accent}</span></h2><p className={`m-0 max-w-xl text-base leading-7 sm:text-lg sm:leading-8 lg:col-span-5 ${palette.body}`}>{content.description}</p></div>
-
-    <div className="mx-auto mt-10 max-w-7xl sm:mt-14">
-      <div className={`mx-auto grid max-w-2xl grid-cols-3 rounded-2xl border p-1.5 shadow-sm ${palette.surface}`} role="tablist" aria-label="Product workflow">
-        {steps.map((item, index) => <button type="button" role="tab" key={item.title} aria-selected={active === index} aria-controls="product-preview-panel" onClick={() => setActive(index)} className={`min-h-11 rounded-xl border-0 px-2 text-xs font-semibold transition sm:text-sm ${active === index ? palette.button : `${palette.muted} hover:bg-blue-500/10`}`}><span className="hidden min-[380px]:inline">0{index + 1} · </span>{item.label ?? `Step ${index + 1}`}</button>)}
-      </div>
-
-      <div className="mx-auto mt-6 max-w-3xl text-center"><h3 className={`m-0 text-xl font-semibold tracking-[-0.025em] sm:text-2xl ${palette.heading}`}>{stage.title}</h3><p className={`mx-auto mb-0 mt-2 max-w-2xl text-sm leading-6 sm:text-base sm:leading-7 ${palette.body}`}>{stage.description}</p></div>
-
-      <div id="product-preview-panel" role="tabpanel" className={`mt-6 overflow-hidden rounded-2xl border bg-white shadow-[0_24px_60px_-42px_rgba(15,23,42,0.45)] sm:rounded-3xl ${palette.border}`}>
-        <button type="button" className="group relative block w-full cursor-zoom-in border-0 bg-white p-0" onClick={() => dialog.current?.showModal()} aria-label={`Open ${stage.title} preview full screen`}><img key={stage.image} className="product-preview-image block h-auto w-full object-contain" src={stage.image} alt={stage.alt} width="1847" height="1015" loading="lazy" decoding="async" /><span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-slate-950/85 px-3 py-1.5 text-[10px] font-semibold text-white shadow-lg backdrop-blur sm:hidden">Tap to enlarge</span></button>
-      </div>
-
-      <div className={`flex flex-col gap-3 pt-4 text-xs leading-5 sm:flex-row sm:items-center sm:justify-between ${palette.muted}`}><span><strong className={`font-semibold ${palette.heading}`}>{content.workspace_label}.</strong> {content.helper_text}</span><button type="button" className={`inline-flex min-h-11 items-center justify-center gap-2 self-start rounded-xl border px-4 font-semibold transition ${palette.secondaryButton}`} onClick={() => dialog.current?.showModal()}>{content.open_label} <span aria-hidden="true">↗</span></button></div>
-    </div>
-
-    <dialog ref={dialog} className="fixed inset-0 m-auto max-h-[94dvh] w-[96vw] max-w-[1600px] overflow-auto rounded-2xl border border-slate-200 bg-white p-3 text-slate-950 shadow-2xl backdrop:bg-slate-950/75"><div className="mb-3 flex items-center justify-between gap-4"><p className="m-0 truncate text-sm font-semibold">{stage.title}</p><button type="button" className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold hover:bg-slate-50" onClick={() => dialog.current?.close()}>Close ×</button></div><img className="block h-auto w-full rounded-xl border border-slate-200" src={stage.image} alt={stage.alt} width="1847" height="1015" loading="lazy" decoding="async" /></dialog>
-  </div></section>;
-}
-
-function Arrow() {
-  return <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
-}
-
-function HeroProcessGraphic({ content }) {
-  const icons = [<><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" /><path d="M5 15v4h14v-4" /></>, <><path d="M4 5h16v11H9l-5 4z" /><path d="M8 9h8M8 12h5" /></>, <><path d="M5 19V9m5 10V5m5 14v-7m5 7V3" /><path d="M3 19h19" /></>];
-  const items = content.process_items.map((item, index) => ({ ...item, icon: icons[index] }));
-  const animated = content.motion_enabled !== false;
-  const palette = paletteFor(content.theme);
-  return <div className={`mt-7 w-full max-w-2xl rounded-2xl border px-4 py-4 shadow-[0_22px_55px_-38px_rgba(15,23,42,0.5)] sm:mt-9 sm:px-7 sm:py-6 ${palette.surface}`} role="img" aria-label="Tatparya process: upload a business file, ask a question, and decide using clear evidence">
-    <div className="relative">
-      <span className={`absolute left-[16.67%] right-[16.67%] top-6 h-px ${content.theme === 'dark' ? 'bg-slate-700' : 'bg-slate-200'}`} aria-hidden="true" />
-      <span className={`${animated ? 'hero-flow-beam' : ''} absolute left-[16.67%] top-6 h-px w-[66.66%] origin-left bg-blue-500`} aria-hidden="true" />
-      {animated && <span className="hero-flow-dot absolute top-[21px] h-[7px] w-[7px] rounded-full bg-blue-500 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]" aria-hidden="true" />}
-      <div className="relative grid grid-cols-3 gap-2">
-        {items.map((item, index) => <div className="flex min-w-0 flex-col items-center text-center" key={item.label}><span className={`${animated ? `hero-flow-node hero-flow-delay-${index}` : ''} grid h-12 w-12 place-items-center rounded-xl border shadow-sm ${palette.card} ${palette.body}`}><svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{item.icon}</svg></span><span className={`mt-3 text-xs font-bold sm:text-sm ${palette.heading}`}>{item.label}</span><span className={`mt-1 block w-full min-w-0 whitespace-normal px-0.5 text-[10px] leading-4 sm:text-xs ${palette.muted}`}>{item.detail}</span></div>)}
-      </div>
-    </div>
-    <div className={`mt-5 border-t pt-3 text-center text-xs font-medium ${palette.border} ${palette.muted}`}>{content.process_footer}</div>
-  </div>;
-}
-
-function ContentLink({ link, className, children, onClick }) {
-  return link.href.startsWith('#')
-    ? <a className={className} href={link.href} onClick={onClick}>{children}</a>
-    : <Link className={className} to={link.href} onClick={onClick}>{children}</Link>;
-}
-
-function CapabilityIcon({ index }) {
-  const paths = [
-    <><path d="M5 6h14M5 12h9M5 18h6" /><path d="m16 15 3 3-3 3" /></>,
-    <><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" /><path d="M2 19h20" /></>,
-    <><path d="m4 13 4 4L20 5" /><path d="M20 12v7H4V5h11" /></>,
-    <><path d="M6 2h9l5 5v15H6z" /><path d="M14 2v6h6M9 13h8M9 17h6" /></>,
-  ];
-  return <svg className="h-8 w-8 text-slate-600 transition group-hover:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[index]}</svg>;
 }

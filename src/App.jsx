@@ -20,6 +20,7 @@ import { PlansPage } from './pages/PlansPage';
 import { AdminPlansPage } from './pages/AdminPlansPage';
 import { AdminEmailTemplatesPage } from './pages/AdminEmailTemplatesPage';
 import { AdminLegalPagesPage } from './pages/AdminLegalPagesPage';
+import { AdminContactsPage } from './pages/AdminContactsPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/plans" element={<AdminPlansPage />} />
             <Route path="/admin/email-templates" element={<AdminEmailTemplatesPage />} />
+            <Route path="/admin/contacts" element={<AdminContactsPage />} />
             <Route path="/admin/legal-pages" element={<Navigate to="/admin/legal-pages/privacy" replace />} />
             <Route path="/admin/legal-pages/:page" element={<AdminLegalPagesPage />} />
           </Route>

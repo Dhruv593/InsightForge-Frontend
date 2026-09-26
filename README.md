@@ -119,6 +119,7 @@ The production output is generated in `dist/`.
 | Route | Purpose |
 | --- | --- |
 | `/admin` | Admin overview |
+| `/admin/contacts` | Contact inquiry inbox and replies |
 | `/admin/landing-content/:section?` | Section-based landing-page editor |
 | `/admin/blogs` | Blog visibility, drafts, and publishing |
 | `/monitoring` | User, provider, queue, failure, and agent metrics |

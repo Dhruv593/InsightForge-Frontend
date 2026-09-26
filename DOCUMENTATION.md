@@ -60,6 +60,7 @@ All routes are declared in `src/App.jsx`.
 | `/admin` | `pages/AdminDashboardPage.jsx` | Owner/admin |
 | `/admin/landing-content/:section?` | `pages/LandingContentPage.jsx` | Owner/admin |
 | `/admin/blogs` | `pages/AdminBlogsPage.jsx` | Owner/admin |
+| `/admin/contacts` | `pages/AdminContactsPage.jsx` | Owner/admin contact inbox and email replies |
 | `/monitoring` | `pages/MonitoringPage.jsx` | Owner/admin |
 | `*` | `pages/NotFoundPage.jsx` | Public 404 |
 
@@ -95,7 +96,7 @@ Google sign-in uses a backend-created nonce cookie. The browser sends the Google
 
 ## 5. Dashboard data flow
 
-`pages/DashboardPage.jsx` is the workspace controller. It coordinates datasets, profiles, conversations, messages, analysis runs, queue status, and result loading.
+`pages/DashboardPage.jsx` is the workspace route shell. `hooks/useDashboardWorkspace.js` owns dataset, profile, conversation, message, run, queue, polling, and result-loading state. Focused UI is delegated to domain components such as `components/datasets/DatasetLibrary.jsx` and `components/conversations/NewAnalysisFields.jsx`.
 
 ### Dataset flow
 
@@ -146,7 +147,7 @@ The frontend polls only safe stage/status information. It does not display priva
 
 ### Result loading
 
-For each completed analysis run, `DashboardPage.jsx` loads the persisted report and charts. Presentation is delegated to:
+For each completed analysis run, `useDashboardWorkspace.js` loads the persisted report and charts. Presentation is delegated to:
 
 | File | Responsibility |
 | --- | --- |
@@ -177,7 +178,7 @@ When adding a chart type, update both rendering and report export paths and add 
 
 ### Public rendering
 
-`pages/LandingPage.jsx` fetches `/site-content/landing`, merges it with defaults, filters disabled sections, and renders the public page. Default/fallback content and the recursive normalizer are in `content/landingContent.js`.
+`pages/LandingPage.jsx` fetches `/site-content/landing`, merges it with defaults, filters disabled sections, and composes the public page. Stateful sections and shared presentation elements live in `components/landing/`; default content and the recursive normalizer remain in `content/landingContent.js`.
 
 Landing sections are:
 
@@ -195,7 +196,9 @@ Each section has an `enabled` value. Disabling a section also removes matching a
 ### Admin editing
 
 - `components/admin/AdminShell.jsx` owns the admin sidebar and nested landing-section navigation.
-- `pages/LandingContentPage.jsx` edits one section at a time and publishes the complete validated content object.
+- `pages/LandingContentPage.jsx` owns loading, publishing, ordering, and upload actions.
+- `components/admin/landing/LandingSectionEditor.jsx` renders the selected section editor.
+- `components/admin/landing/LandingEditorFields.jsx` contains the reusable editor controls.
 - `services/siteContentService.js` calls the public and admin CMS endpoints.
 
 The product-preview editor uploads images through the backend. Do not add Cloudinary credentials to the client.
@@ -221,6 +224,7 @@ The public blog switch is stored with landing content. When disabled:
 ## 9. Monitoring and administration
 
 - `pages/AdminDashboardPage.jsx`: overview of landing content, posts, users, and analyses.
+- `pages/AdminContactsPage.jsx`: contact totals, status filters, inquiry details, and templated email replies.
 - `pages/MonitoringPage.jsx`: owner-only API/database status, provider reliability, agent activity, and recent failures.
 - `components/admin/AdminShell.jsx`: shared admin chrome.
 
@@ -269,7 +273,7 @@ Admin status is delivered by `/auth/me`. It is derived from the backend `ADMIN_E
 
 1. Add the backend endpoint first.
 2. Add a method to the relevant `src/services/*Service.js` module.
-3. Keep orchestration in `DashboardPage.jsx` or create a focused hook/controller if the feature is independent.
+3. Put workspace loading or polling in `hooks/useDashboardWorkspace.js`; keep route composition in `DashboardPage.jsx` and feature UI in a focused component.
 4. Put reusable visuals under `src/components/<feature>/`.
 5. Use `getApiError()` and `ToastContext` for failures/success.
 6. Test empty, loading, error, mobile, and unauthorized states.
@@ -294,9 +298,9 @@ Do not create a second Axios instance for authenticated application calls; doing
 
 1. Add the default object to `content/landingContent.js`.
 2. Add its Pydantic schema and field to the backend `app/schemas/site_content.py`.
-3. Render it conditionally in `pages/LandingPage.jsx`.
+3. Create its public component in `components/landing/` and compose it in `pages/LandingPage.jsx`.
 4. Add its subtab to `components/admin/AdminShell.jsx`.
-5. Add its editor to `pages/LandingContentPage.jsx`.
+5. Add its editor to `components/admin/landing/LandingSectionEditor.jsx`.
 6. If the section has an anchor, update the anchor-to-section filter in `LandingPage.jsx`.
 7. Verify old saved content still works through the recursive normalizer/defaults.
 
