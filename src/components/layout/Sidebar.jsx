@@ -14,10 +14,10 @@ export function Sidebar({ open, pinned, onPin, datasets, datasetsLoading, select
 
   const content = <>
       <div className="grid gap-1.5 px-2.5 pt-3">
-        <button className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#DADAE0] bg-white px-2.5 text-left text-[13px] font-medium text-[#1D1D1F] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition hover:border-[#C8C8CE] hover:bg-[#FBFBFC] lg:min-h-9" type="button" onClick={onNewAnalysis}>
-          <span className="text-lg font-light leading-none text-brand-600">+</span>New Analysis
+        <button className="flex min-h-11 w-full items-center gap-2 rounded-[10px] border border-brand-600 bg-brand-600 px-2.5 text-left text-[12px] font-semibold text-white shadow-[0_4px_12px_rgba(67,56,202,0.18)] transition hover:border-brand-700 hover:bg-brand-700 hover:shadow-[0_6px_16px_rgba(67,56,202,0.22)] active:translate-y-px active:shadow-sm lg:min-h-9" type="button" onClick={onNewAnalysis}>
+          <PlusIcon />New Analysis
         </button>
-        <button className="flex min-h-11 w-full items-center gap-2 rounded-lg border border-[#DADAE0] bg-white px-2.5 text-left text-[13px] font-medium text-[#1D1D1F] transition hover:border-[#C8C8CE] hover:bg-[#FBFBFC] disabled:opacity-50 lg:min-h-9" type="button" onClick={chooseFile} disabled={uploading}>
+        <button className="flex min-h-11 w-full items-center gap-2 rounded-[10px] border border-[#DADAE0] bg-white px-2.5 text-left text-[12px] font-medium text-[#3A3A3C] shadow-[0_1px_2px_rgba(0,0,0,0.025)] transition hover:border-[#BFC0C7] hover:bg-[#F7F7F9] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 lg:min-h-9" type="button" onClick={chooseFile} disabled={uploading}>
           <UploadIcon />{uploading ? 'Uploading…' : 'Upload Dataset'}
         </button>
         <button className={`flex min-h-11 w-full items-center gap-2 rounded-lg border-0 px-2.5 text-left text-[13px] font-medium transition lg:min-h-9 ${!selectedDatasetId ? 'bg-indigo-50 text-indigo-950' : 'bg-transparent text-[#515154] hover:bg-black/[0.035] hover:text-[#1D1D1F]'}`} type="button" onClick={onViewDatasets} aria-current={!selectedDatasetId ? 'page' : undefined}>
@@ -38,6 +38,7 @@ export function Sidebar({ open, pinned, onPin, datasets, datasetsLoading, select
 function SidebarSection({ title, className = '', children }) { return <section className={`min-w-0 ${className}`}><h2 className="mb-1.5 px-2.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-[#86868B]">{title}</h2>{children}</section>; }
 function SidebarNote({ children }) { return <p className="m-0 px-3 py-2 text-xs leading-5 text-[#86868B]">{children}</p>; }
 export function datasetMeta(dataset, profile) { const type = dataset.file_type?.toUpperCase() || 'FILE'; return !profile || profile.profile_status !== 'completed' ? `${type} · Not profiled` : `${type} · ${Number(profile.row_count).toLocaleString()} rows · ${profile.column_count} columns · Ready`; }
+function PlusIcon() { return <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>; }
 function UploadIcon() { return <svg className="h-4 w-4 shrink-0 text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" /><path d="M5 15v4h14v-4" /></svg>; }
 function DatasetsIcon() { return <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="7" ry="3" /><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5M5 11v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6" /></svg>; }
 function SearchIcon() { return <svg className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-[#98989D]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>; }

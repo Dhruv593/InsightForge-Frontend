@@ -8,7 +8,7 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
   const running = run.status === 'pending' || run.status === 'running' || Boolean(progress);
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-5 px-4 pb-5 pt-4 sm:px-6 sm:py-6">
+    <div className="mx-auto grid w-full max-w-6xl gap-4 px-4 pb-4 pt-3 sm:px-5 sm:py-4">
       <section className="rounded-xl border border-[#E4E2F4] bg-[#F7F6FF] px-4 py-3" aria-label="Active question">
         <p className="m-0 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[#30303A]">{question.query}</p>
       </section>
@@ -19,7 +19,7 @@ export function AnalysisCanvas({ question, result, savedAnswer, progress, loadin
 
 function RunningState({ progress, onCancel }) {
   return (
-    <section className="flex min-h-72 items-center justify-center" role="status" aria-live="polite">
+    <section className="flex min-h-56 items-center justify-center" role="status" aria-live="polite">
       <div className="w-full max-w-md overflow-hidden rounded-2xl border border-[#E1E1E5] bg-white shadow-[0_10px_35px_rgba(30,30,50,0.055)]">
         <div className="flex items-start gap-3.5 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600"><span className="analysis-processing-dots analysis-processing-dots-dark" aria-hidden="true"><span /><span /><span /></span></span>
@@ -42,7 +42,7 @@ function FailedState({ message, cancelled, onRetry, onEdit }) {
 
 function EmptyAnalysis({ onSelect }) {
   const examples = ['Show the most important trends in this dataset.', 'Compare performance across the main categories.', 'Create useful visuals and recommend next actions.'];
-  return <div className="grid min-h-full place-content-center px-5 py-8 text-center"><h2 className="m-0 text-lg font-semibold text-[#1D1D1F]">Ask your first question about this dataset.</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Choose an example or write your own question below.</p><div className="mx-auto mt-5 grid w-full max-w-xl gap-2 sm:grid-cols-3">{examples.map((example) => <button className="rounded-xl border border-[#E1E1E5] bg-white px-3 py-3 text-left text-xs leading-5 text-[#515154] transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" type="button" key={example} onClick={() => onSelect(example)}>{example}</button>)}</div></div>;
+  return <div className="grid min-h-full place-content-center px-5 py-7 text-center"><h2 className="m-0 text-base font-semibold text-[#1D1D1F]">Ask your first question about this dataset.</h2><p className="mb-0 mt-1.5 text-xs text-[#6E6E73]">Choose an example or write your own question below.</p><div className="mx-auto mt-4 grid w-full max-w-xl gap-2 sm:grid-cols-3">{examples.map((example) => <button className="min-h-11 rounded-xl border border-[#E1E1E5] bg-white px-3 py-2.5 text-left text-[11px] leading-4 text-[#515154] transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700" type="button" key={example} onClick={() => onSelect(example)}>{example}</button>)}</div></div>;
 }
 
 function ResultUnavailable() {

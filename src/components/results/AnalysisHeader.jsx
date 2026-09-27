@@ -37,10 +37,10 @@ export function AnalysisHeader({ conversation, dataset, profileComplete, result,
   }
 
   return (
-    <header className="border-b border-[#E5E5EA] bg-white px-2.5 py-0.5 sm:px-5 sm:py-2.5">
+    <header className="border-b border-[#E5E5EA] bg-white px-2.5 py-0.5 sm:px-4 sm:py-1.5">
       <div className="flex min-w-0 items-center justify-between gap-2 sm:gap-4">
         <div className="min-w-0 flex-1">
-          <h1 className="m-0 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1D1D1F] sm:text-base" title={conversation.title}>{conversation.title}</h1>
+          <h1 className="m-0 truncate text-[15px] font-semibold tracking-[-0.02em] text-[#1D1D1F]" title={conversation.title}>{conversation.title}</h1>
           <p className="mb-0 mt-0.5 hidden min-w-0 items-center gap-1.5 text-[11px] leading-4 text-[#6E6E73] sm:flex">
             <span className="min-w-0 truncate" title={dataset?.original_file_name}>{dataset?.original_file_name || 'Dataset'}</span>
             <span className="shrink-0 text-[#C7C7CC]">·</span>
@@ -49,7 +49,7 @@ export function AnalysisHeader({ conversation, dataset, profileComplete, result,
         </div>
         <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <button className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border-0 bg-transparent px-2 text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] sm:h-9 sm:min-w-9 lg:hidden" type="button" onClick={onOpenQuestions} aria-label="Open questions" title="Questions"><QuestionsIcon /><span className="hidden text-[11px] font-medium md:inline">Questions</span></button>
-          {result?.report && <button className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border-0 bg-transparent px-2 text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] disabled:opacity-50 sm:h-9 sm:min-w-9" type="button" onClick={openPreview} disabled={downloading} aria-label={downloading ? 'Preparing PDF' : 'Preview PDF'} title={downloading ? 'Preparing PDF…' : 'Preview PDF'}>{downloading ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#C7C7CC] border-t-[#515154]" /> : <PdfIcon />}<span className="hidden text-[11px] font-medium md:inline">{downloading ? 'Preparing…' : 'Preview PDF'}</span></button>}
+          {result?.report && <button className="inline-flex h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl border-0 bg-transparent px-2 text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] disabled:opacity-50 sm:h-8 sm:min-w-8" type="button" onClick={openPreview} disabled={downloading} aria-label={downloading ? 'Preparing PDF' : 'Preview PDF'} title={downloading ? 'Preparing PDF…' : 'Preview PDF'}>{downloading ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#C7C7CC] border-t-[#515154]" /> : <PdfIcon />}<span className="hidden text-[11px] font-medium md:inline">{downloading ? 'Preparing…' : 'Preview PDF'}</span></button>}
           <button className="hidden rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-[#6E6E73] hover:bg-[#F5F5F7] hover:text-[#1D1D1F] sm:block" type="button" onClick={onRename}>Rename</button>
           <span className="mx-1 hidden h-5 w-px bg-[#E5E5EA] sm:block" aria-hidden="true" />
           <button className="hidden rounded-lg border-0 bg-transparent px-2 py-1.5 text-[11px] font-medium text-red-600 hover:bg-red-50 sm:block" type="button" onClick={onDelete}>Delete</button>

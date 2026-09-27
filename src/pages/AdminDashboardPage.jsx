@@ -29,7 +29,7 @@ export function AdminDashboardPage() {
   if (!user?.is_admin) return <Navigate to="/dashboard" replace />;
 
   return <AdminShell><div className="grid w-full gap-7">
-    <header><p className="mb-2 text-xs font-semibold text-brand-600">Overview</p><h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-[#1D1D1F] sm:text-3xl">Welcome back, {user.name.split(' ')[0]}</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Manage Tatparya’s public content and keep an eye on system activity.</p></header>
+    <header><h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-[#1D1D1F] sm:text-3xl">Welcome back, {user.name.split(' ')[0]}</h2><p className="mb-0 mt-2 text-sm text-[#6E6E73]">Manage Tatparya’s public content and keep an eye on system activity.</p></header>
 
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       <Metric label="Landing page" value={content?.version ? 'Published' : 'Not published'} detail={content?.version ? `Version ${content.version}` : 'Using default content'} />

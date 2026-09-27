@@ -30,10 +30,9 @@ export function AdminShell({ children }) {
     <div className="grid min-h-[calc(100vh-3.5rem)] w-full lg:grid-cols-[240px_minmax(0,1fr)]">
       <aside className="relative z-40 border-b border-[#E1E1E5] bg-white lg:z-auto lg:border-b-0 lg:border-r">
         <div className="lg:sticky lg:top-14 lg:flex lg:h-[calc(100vh-3.5rem)] lg:flex-col lg:px-4 lg:py-6">
-          <div className="flex min-h-16 items-center justify-between gap-3 px-3 lg:hidden"><div className="min-w-0"><p className="m-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-600">Tatparya</p><h1 className="mb-0 mt-0.5 truncate text-sm font-semibold tracking-[-0.02em]">Admin Dashboard</h1></div><button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[#D2D2D7] bg-white px-3 text-xs font-semibold text-[#3A3A3C]" type="button" aria-expanded={mobileMenuOpen} aria-controls="admin-navigation" onClick={() => setMobileMenuOpen((value) => !value)}><AdminIcon name="menu" />Menu</button></div>
+          <div className="flex min-h-16 items-center justify-between gap-3 px-3 lg:hidden"><h1 className="m-0 min-w-0 truncate text-sm font-semibold tracking-[-0.02em]">Admin Dashboard</h1><button className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-[#D2D2D7] bg-white px-3 text-xs font-semibold text-[#3A3A3C]" type="button" aria-expanded={mobileMenuOpen} aria-controls="admin-navigation" onClick={() => setMobileMenuOpen((value) => !value)}><AdminIcon name="menu" />Menu</button></div>
           <div className="hidden px-3 lg:block">
-            <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-600">Tatparya</p>
-            <h1 className="mb-0 mt-2 text-lg font-semibold tracking-[-0.025em] text-[#1D1D1F]">Admin Dashboard</h1>
+            <h1 className="m-0 text-lg font-semibold tracking-[-0.025em] text-[#1D1D1F]">Admin Dashboard</h1>
             <p className="mb-0 mt-1 text-xs leading-5 text-[#86868B]">Manage content and system operations.</p>
           </div>
           <nav className={`${mobileMenuOpen ? 'grid' : 'hidden'} absolute inset-x-0 top-full max-h-[calc(100dvh-7.5rem)] gap-1 overflow-y-auto border-b border-[#E1E1E5] bg-white px-3 py-3 shadow-[0_16px_42px_-18px_rgba(0,0,0,0.42)] lg:static lg:mb-4 lg:mt-7 lg:grid lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:shadow-none`} id="admin-navigation" aria-label="Admin navigation">

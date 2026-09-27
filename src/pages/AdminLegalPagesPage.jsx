@@ -87,7 +87,7 @@ export function AdminLegalPagesPage() {
 
   return <AdminShell><div className="mx-auto max-w-5xl">
     <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0"><p className="mb-2 text-xs font-semibold text-brand-600">Legal pages</p><h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-[#1D1D1F] sm:text-3xl">{document.title}</h2><p className="mb-0 mt-2 text-sm leading-6 text-[#6E6E73]">Edit the public policy content and publish both legal pages together.</p></div>
+      <div className="min-w-0"><h2 className="m-0 text-2xl font-semibold tracking-[-0.035em] text-[#1D1D1F] sm:text-3xl">{document.title}</h2><p className="mb-0 mt-2 text-sm leading-6 text-[#6E6E73]">Edit the public policy content and publish both legal pages together.</p></div>
       <div className="grid grid-cols-2 gap-2 sm:flex"><Link className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D2D2D7] bg-white px-3 text-xs font-semibold text-[#3A3A3C] hover:bg-[#F7F7F8]" to={publicPath} target="_blank">View page ↗</Link><button className="min-h-11 rounded-xl bg-brand-600 px-4 text-xs font-semibold text-white hover:bg-brand-700 disabled:opacity-50" type="submit" form="legal-content-form" disabled={saving || loading}>{saving ? 'Publishing…' : 'Publish changes'}</button></div>
     </header>
     <div className="mb-5 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-[#6E6E73]"><span>Version {meta.version || 'not published'}</span>{meta.updated_at && <span>Last published {new Date(meta.updated_at).toLocaleString()}</span>}</div>
