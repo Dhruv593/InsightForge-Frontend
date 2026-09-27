@@ -82,6 +82,14 @@
 }
 
 @layer components {
+  .glass-popover {
+    border: 1px solid #e1e1e5;
+    background: #fff;
+    box-shadow: 0 16px 42px -18px rgb(0 0 0 / 42%), 0 2px 8px rgb(0 0 0 / 10%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    isolation: isolate;
+  }
   .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #B8B8BE transparent; }
   .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { border-width: 2px; }
@@ -112,6 +120,14 @@
   .hero-flow-delay-1 { animation-delay: 1.8s; }
   .hero-flow-delay-2 { animation-delay: 3.6s; }
   .product-preview-image { animation: preview-reveal 300ms ease-out; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-popover {
+    background: #fff;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

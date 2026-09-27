@@ -220,7 +220,7 @@ export function DashboardPage() {
 
   return (
     <div className="dashboard-shell min-h-[100dvh] bg-[#F5F5F7]" data-onboarding-step={onboardingActive && !modal ? onboardingStep : undefined}>
-      <AppHeader onToggleSidebar={() => setSidebarOpen((value) => !value)} activeRuns={activeQueue} onSelectRun={(run) => navigate(`/dashboard/conversations/${run.conversation_id}?run=${run.id}`)} onCancelRun={(run) => cancelAnalysis(run.id)} />
+      <AppHeader compactProfileMenu onToggleSidebar={() => setSidebarOpen((value) => !value)} activeRuns={activeQueue} onSelectRun={(run) => navigate(`/dashboard/conversations/${run.conversation_id}?run=${run.id}`)} onCancelRun={(run) => cancelAnalysis(run.id)} />
       <div className="flex h-[100dvh] overflow-hidden pt-14">
         <Sidebar
           open={sidebarOpen}

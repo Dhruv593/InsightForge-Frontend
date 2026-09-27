@@ -79,8 +79,8 @@ export function OnboardingTour({ step, hidden = false, onSkip }) {
 
   if (hidden || !placement) return null;
 
-  return <section className="fixed z-[70] rounded-lg border border-slate-200 bg-white p-3.5 shadow-[0_10px_30px_rgba(15,23,42,0.16)]" style={{ left: placement.left, top: placement.top, width: placement.width }} role="status" aria-label="Getting started tour">
-    <span className={`absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-slate-200 bg-white ${placement.above ? '-bottom-1.5 border-b border-r' : '-top-1.5 border-l border-t'}`} aria-hidden="true" />
+  return <section className="glass-popover fixed z-[70] rounded-xl p-3.5" style={{ left: placement.left, top: placement.top, width: placement.width }} role="status" aria-label="Getting started tour">
+    <span className={`absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-white/70 bg-white/90 ${placement.above ? '-bottom-1.5 border-b border-r' : '-top-1.5 border-l border-t'}`} aria-hidden="true" />
     <div className="flex items-start justify-between gap-4">
       <div className="flex gap-1" aria-label={`Step ${details.index + 1} of 3`}>{Object.values(STEPS).map((item) => <span className={`h-1 w-6 rounded-full ${item.index <= details.index ? 'bg-indigo-600' : 'bg-slate-200'}`} key={item.title} />)}</div>
       <button className="-mr-1.5 -mt-1.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border-0 bg-transparent text-base text-slate-400 hover:bg-slate-100 hover:text-slate-700" type="button" onClick={onSkip} aria-label="Skip tour">×</button>
